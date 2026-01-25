@@ -36,18 +36,21 @@ export async function POST(request: Request) {
     );
   }
 
-  const enrichment = await enrichLead(parsed.data);
+  const enrichment = await enrichLead({
+    name: parsed.data.name,
+    company: parsed.data.company,
+    service_needed: parsed.data.serviceNeeded,
+    message: parsed.data.message
+  });
 
-  if (enrichment.ai_summary || enrichment.ai_intent || enrichment.ai_score) {
-    await supabaseServer
-      .from("leads")
-      .update({
-        ai_summary: enrichment.ai_summary,
-        ai_intent: enrichment.ai_intent,
-        ai_score: enrichment.ai_score
-      })
-      .eq("id", lead.id);
-  }
+  await supabaseServer
+    .from("leads")
+    .update({
+      ai_summary: enrichment.ai_summary,
+      ai_intent: enrichment.ai_intent,
+      ai_score: enrichment.ai_score
+    })
+    .eq("id", lead.id);
 
   return NextResponse.json({ id: lead.id });
 }
