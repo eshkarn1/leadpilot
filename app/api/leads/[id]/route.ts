@@ -9,6 +9,14 @@ export async function GET(
   _request: Request,
   { params }: { params: { id: string } }
 ) {
+  const supabaseServer = getSupabaseServer();
+  if (!supabaseServer) {
+    return NextResponse.json(
+      { error: "Supabase is not configured" },
+      { status: 500 }
+    );
+  }
+
   const { data, error } = await supabaseServer
     .from("leads")
     .select("*")
@@ -29,6 +37,14 @@ export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const supabaseServer = getSupabaseServer();
+  if (!supabaseServer) {
+    return NextResponse.json(
+      { error: "Supabase is not configured" },
+      { status: 500 }
+    );
+  }
+
   const body = await request.json();
   const status = body.status as Status | undefined;
 
