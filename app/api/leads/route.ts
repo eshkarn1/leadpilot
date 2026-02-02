@@ -1,17 +1,9 @@
 import { NextResponse } from "next/server";
 import { leadSchema } from "@/lib/validators/lead";
-import { getSupabaseServer } from "@/lib/supabase/server";
+import { supabaseServer } from "@/lib/supabase/server";
 import { enrichLead } from "@/lib/ai/enrichLead";
 
 export async function POST(request: Request) {
-  const supabaseServer = getSupabaseServer();
-  if (!supabaseServer) {
-    return NextResponse.json(
-      { error: "Supabase is not configured" },
-      { status: 500 }
-    );
-  }
-
   const body = await request.json();
   const parsed = leadSchema.safeParse(body);
 
@@ -64,14 +56,6 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const supabaseServer = getSupabaseServer();
-  if (!supabaseServer) {
-    return NextResponse.json(
-      { error: "Supabase is not configured" },
-      { status: 500 }
-    );
-  }
-
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status");
 
