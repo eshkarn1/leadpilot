@@ -5,10 +5,6 @@ import { supabaseServer } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 async function fetchLead(id: string) {
-  if (!supabaseServer) {
-    return null;
-  }
-
   const { data, error } = await supabaseServer
     .from("leads")
     .select("*")
@@ -28,43 +24,6 @@ export default async function LeadDetailPage({
   params: { id: string };
 }) {
   const lead = await fetchLead(params.id);
-  const isSupabaseConfigured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
-
-  if (!isSupabaseConfigured) {
-    return (
-      <section className="space-y-6">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-widest text-slate-400">
-            Lead detail
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold text-slate-900">
-            Supabase not configured
-          </h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to view
-            lead details.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
-  if (!lead) {
-    return (
-      <section className="space-y-6">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-widest text-slate-400">
-            Lead detail
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold text-slate-900">
-            Lead not found
-          </h1>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className="space-y-6">

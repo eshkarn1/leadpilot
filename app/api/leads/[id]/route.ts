@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { getSupabaseServer } from "@/lib/supabase/server";
 
 const STATUSES = ["new", "contacted", "qualified", "won", "lost"] as const;
 
@@ -9,6 +9,7 @@ export async function GET(
   _request: Request,
   { params }: { params: { id: string } }
 ) {
+  const supabaseServer = getSupabaseServer();
   if (!supabaseServer) {
     return NextResponse.json(
       { error: "Supabase is not configured" },
@@ -36,6 +37,7 @@ export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const supabaseServer = getSupabaseServer();
   if (!supabaseServer) {
     return NextResponse.json(
       { error: "Supabase is not configured" },

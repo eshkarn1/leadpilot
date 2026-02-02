@@ -4,13 +4,6 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { enrichLead } from "@/lib/ai/enrichLead";
 
 export async function POST(request: Request) {
-  if (!supabaseServer) {
-    return NextResponse.json(
-      { error: "Supabase is not configured" },
-      { status: 500 }
-    );
-  }
-
   const body = await request.json();
   const parsed = leadSchema.safeParse(body);
 
@@ -63,13 +56,6 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  if (!supabaseServer) {
-    return NextResponse.json(
-      { error: "Supabase is not configured" },
-      { status: 500 }
-    );
-  }
-
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status");
 
