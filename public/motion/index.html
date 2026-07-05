@@ -462,6 +462,97 @@ footer .socials a{transition:color .3s}
 footer .socials a:hover{color:var(--signal)}
 
 /* ============================================================
+   Lead modal — the intake vault
+   ============================================================ */
+#lead-modal{
+  position:fixed;inset:0;z-index:80;
+  display:flex;align-items:center;justify-content:center;
+  padding:1.25rem;
+  visibility:hidden;opacity:0;
+  transition:opacity .4s var(--ease-out),visibility 0s .4s;
+}
+#lead-modal.open{visibility:visible;opacity:1;transition:opacity .4s var(--ease-out)}
+#lead-modal .veil{
+  position:absolute;inset:0;background:rgba(4,7,14,.78);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.modal-panel{
+  position:relative;width:min(34rem,100%);max-height:90svh;overflow-y:auto;
+  background:var(--abyss);border:1px solid var(--hairline);
+  padding:clamp(1.75rem,4vw,2.75rem);
+  transform:translateY(1.5rem);
+  transition:transform .5s var(--ease-out);
+}
+#lead-modal.open .modal-panel{transform:none}
+.modal-panel::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--signal-2),var(--signal),transparent);
+}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1.75rem}
+.modal-head h3{
+  font-family:var(--font-display);font-weight:850;font-size:1.6rem;
+  text-transform:uppercase;letter-spacing:-.01em;line-height:1.1;
+}
+.modal-close{
+  font-family:var(--font-mono);font-size:.6875rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--steel);
+  padding:.4rem .7rem;border:1px solid var(--hairline);
+  transition:color .3s,border-color .3s;flex:none;
+}
+.modal-close:hover{color:var(--arctic);border-color:var(--signal)}
+.field{margin-bottom:1.4rem}
+.field label{
+  display:block;font-family:var(--font-mono);font-size:.625rem;font-weight:500;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--steel);
+  margin-bottom:.5rem;
+}
+.field label .req{color:var(--signal)}
+.field input,.field select,.field textarea{
+  width:100%;background:var(--ink);color:var(--arctic);
+  font-family:var(--font-body);font-size:.9375rem;
+  border:1px solid var(--hairline-2);border-radius:0;
+  padding:.8rem .9rem;
+  transition:border-color .3s;
+  -webkit-appearance:none;appearance:none;
+}
+.field select{
+  background-image:linear-gradient(45deg,transparent 50%,var(--steel) 50%),
+                   linear-gradient(135deg,var(--steel) 50%,transparent 50%);
+  background-position:calc(100% - 1.2rem) 50%,calc(100% - .85rem) 50%;
+  background-size:.35rem .35rem;background-repeat:no-repeat;
+}
+.field textarea{min-height:6rem;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none;border-color:var(--signal);
+}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:520px){ .field-row{grid-template-columns:1fr} }
+.form-submit{
+  width:100%;justify-content:center;margin-top:.5rem;
+}
+.form-note{
+  display:none;margin-top:1rem;
+  font-family:var(--font-mono);font-size:.6875rem;letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.form-note.error{display:block;color:#FF6B6B}
+/* success state */
+.modal-success{display:none;text-align:center;padding:2rem 0}
+.modal-success .mark{
+  width:3.5rem;height:3.5rem;margin:0 auto 1.5rem;border-radius:50%;
+  border:1px solid var(--signal);color:var(--signal);
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+}
+.modal-success h3{
+  font-family:var(--font-display);font-weight:850;font-size:1.5rem;
+  text-transform:uppercase;margin-bottom:.75rem;
+}
+.modal-success p{color:var(--steel);font-size:.9rem;max-width:32ch;margin:0 auto}
+#lead-modal.sent form,#lead-modal.sent .modal-head{display:none}
+#lead-modal.sent .modal-success{display:block}
+body.modal-open{overflow:hidden}
+
+/* ============================================================
    Reduced motion — the site stays composed, just still
    ============================================================ */
 @media (prefers-reduced-motion:reduce){
@@ -494,7 +585,7 @@ footer .socials a:hover{color:var(--signal)}
     <a class="navlink" href="#work" data-hover>Work</a>
     <a class="navlink" href="#capabilities" data-hover>Capabilities</a>
     <a class="navlink" href="#process" data-hover>Process</a>
-    <a class="nav-cta" href="#contact" data-hover>Start a project</a>
+    <a class="nav-cta" href="#contact" data-hover data-open-lead>Start a project</a>
   </nav>
 </header>
 
@@ -679,11 +770,63 @@ footer .socials a:hover{color:var(--signal)}
   <span class="mono" style="display:block;margin-bottom:1.5rem">Next opening — September 2026</span>
   <h2>Let's move.</h2>
   <p class="sub">One project at a time, taken seriously. Tell us what you're building and we'll show you what it looks like in motion.</p>
-  <a class="magnetic" href="mailto:hello@kinetiq.studio" data-hover data-magnetic>Start a project <span aria-hidden="true">→</span></a>
+  <button class="magnetic" type="button" data-hover data-magnetic data-open-lead>Start a project <span aria-hidden="true">→</span></button>
   <span class="mail mono">or write to <a href="mailto:hello@kinetiq.studio" data-hover>hello@kinetiq.studio</a></span>
 </section>
 
 </main>
+
+<!-- ================= Lead modal ================= -->
+<div id="lead-modal" role="dialog" aria-modal="true" aria-labelledby="lead-title">
+  <div class="veil" data-close-lead></div>
+  <div class="modal-panel">
+    <div class="modal-head">
+      <h3 id="lead-title">Start a<br>project</h3>
+      <button class="modal-close" type="button" data-hover data-close-lead>Close ✕</button>
+    </div>
+
+    <form id="lead-form" novalidate>
+      <div class="field-row">
+        <div class="field">
+          <label for="lf-name">Name <span class="req">*</span></label>
+          <input id="lf-name" name="name" type="text" required minlength="2" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="lf-email">Email <span class="req">*</span></label>
+          <input id="lf-email" name="email" type="email" required autocomplete="email">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="lf-company">Company</label>
+          <input id="lf-company" name="company" type="text" autocomplete="organization">
+        </div>
+        <div class="field">
+          <label for="lf-service">What you need <span class="req">*</span></label>
+          <select id="lf-service" name="serviceNeeded" required>
+            <option value="Motion website">Motion website</option>
+            <option value="WebGL &amp; 3D">WebGL &amp; 3D</option>
+            <option value="Interaction design">Interaction design</option>
+            <option value="Brand in motion">Brand in motion</option>
+            <option value="Something else">Something else</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="lf-message">Tell us about it</label>
+        <textarea id="lf-message" name="message" placeholder="What are you building, and when does it need to move?"></textarea>
+      </div>
+      <button class="magnetic form-submit" type="submit" data-hover>Send it <span aria-hidden="true">→</span></button>
+      <p class="form-note" id="lead-error" role="alert"></p>
+    </form>
+
+    <div class="modal-success" aria-live="polite">
+      <div class="mark" aria-hidden="true">✓</div>
+      <h3>Transmission received.</h3>
+      <p>We read every brief the day it lands. Expect a reply — in motion — within 48 hours.</p>
+    </div>
+  </div>
+</div>
 
 <footer>
   <span class="mono">© 2026 KINETIQ Studio</span>
@@ -994,6 +1137,72 @@ const scenes = {
 document.querySelectorAll("[data-scene]").forEach(c=>{
   const s = scenes[c.dataset.scene];
   if(s) makeScene(c,s);
+});
+
+/* ============================================================
+   Lead modal — posts straight into the LeadPilot pipeline
+   ============================================================ */
+const modal = document.getElementById("lead-modal");
+const form  = document.getElementById("lead-form");
+const errEl = document.getElementById("lead-error");
+let lastFocus = null;
+
+function openLead(){
+  lastFocus = document.activeElement;
+  modal.classList.add("open");
+  document.body.classList.add("modal-open");
+  setTimeout(()=>document.getElementById("lf-name").focus(), 250);
+}
+function closeLead(){
+  modal.classList.remove("open");
+  document.body.classList.remove("modal-open");
+  if(lastFocus) lastFocus.focus();
+}
+document.querySelectorAll("[data-open-lead]").forEach(el=>{
+  el.addEventListener("click",e=>{ e.preventDefault(); openLead(); });
+});
+document.querySelectorAll("[data-close-lead]").forEach(el=>{
+  el.addEventListener("click",closeLead);
+});
+addEventListener("keydown",e=>{
+  if(e.key==="Escape" && modal.classList.contains("open")) closeLead();
+});
+
+form.addEventListener("submit", async e=>{
+  e.preventDefault();
+  errEl.className = "form-note"; errEl.textContent = "";
+
+  if(!form.reportValidity()) return;
+
+  const fd = new FormData(form);
+  const payload = {
+    name: (fd.get("name")||"").toString().trim(),
+    email: (fd.get("email")||"").toString().trim(),
+    company: (fd.get("company")||"").toString().trim() || null,
+    serviceNeeded: (fd.get("serviceNeeded")||"").toString(),
+    message: (fd.get("message")||"").toString().trim() || null
+  };
+
+  const btn = form.querySelector(".form-submit");
+  btn.disabled = true; btn.textContent = "Sending…";
+  try{
+    const res = await fetch("/api/leads",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok){
+      const data = await res.json().catch(()=>({}));
+      throw new Error(data.error || `Request failed (${res.status})`);
+    }
+    modal.classList.add("sent");
+  }catch(err){
+    errEl.className = "form-note error";
+    errEl.textContent = err.message + " — or email hello@kinetiq.studio";
+  }finally{
+    btn.disabled = false;
+    btn.innerHTML = 'Send it <span aria-hidden="true">→</span>';
+  }
 });
 
 })();
