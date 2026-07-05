@@ -183,7 +183,7 @@ nav a.navlink:hover::after{transform:scaleX(1);transform-origin:left}
   padding:8rem var(--gutter) 4rem;
   overflow:hidden;
 }
-#field{position:absolute;inset:0;z-index:0}
+#field{position:absolute;inset:0;width:100%;height:100%;z-index:0}
 .hero::after{ /* vignette to keep type legible */
   content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
   background:radial-gradient(ellipse 90% 70% at 50% 45%,transparent 40%,var(--ink) 100%);
@@ -597,7 +597,7 @@ body.modal-open{overflow:hidden}
 
   <div class="hero-meta">
     <span class="mono">Motion studio — est. 2021</span>
-    <span class="mono" id="coords">51.5072°N / 0.1276°W</span>
+    <span class="mono" id="coords">WebGL field — rendering live</span>
   </div>
 
   <h1>
@@ -967,15 +967,173 @@ if(finePointer && !reduced){
 }
 
 /* ============================================================
-   Hero particle field — drifting constellation, mouse parallax
+   Hero — WebGL 3D "web in motion"
+   An undulating wireframe mesh of nodes receding to the horizon:
+   the web, literally moving. GPU vertex-shader waves, additive
+   glow, mouse-parallax camera. Falls back to the 2D constellation
+   when WebGL is unavailable.
    ============================================================ */
 const field = document.getElementById("field");
-if(field && !reduced){
-  const ctx = field.getContext("2d");
+
+function initWebGLField(canvas){
+  const gl = canvas.getContext("webgl",{antialias:true,alpha:true,powerPreference:"high-performance"});
+  if(!gl) return false;
+
+  const VERT = `
+    attribute vec2 a_xz;
+    uniform mat4 u_proj, u_view;
+    uniform float u_t, u_dpr;
+    varying float v_fog;
+    varying float v_h;
+    float wave(vec2 p, float t){
+      float y = 0.0;
+      y += sin(p.x*0.70 + t*0.90) * 0.35;
+      y += sin(p.y*0.55 - t*0.70) * 0.40;
+      y += sin((p.x + p.y)*0.35 + t*0.50) * 0.25;
+      y += sin(length(p - vec2(0.0, 7.0))*0.90 - t*1.60) * 0.18;
+      return y;
+    }
+    void main(){
+      float y = wave(a_xz, u_t);
+      vec4 mv = u_view * vec4(a_xz.x, y, a_xz.y, 1.0);
+      gl_Position = u_proj * mv;
+      float depth = clamp(a_xz.y / 18.0, 0.0, 1.0);
+      v_fog = (1.0 - depth) * smoothstep(0.0, 1.2, a_xz.y);
+      v_h = clamp(y * 0.9 + 0.5, 0.0, 1.0);
+      gl_PointSize = mix(3.2, 1.0, depth) * u_dpr;
+    }`;
+  const FRAG_LINE = `
+    precision mediump float;
+    varying float v_fog; varying float v_h;
+    uniform float u_alpha;
+    void main(){
+      vec3 base = vec3(0.075, 0.16, 0.32);
+      vec3 glow = vec3(0.302, 0.486, 1.0);
+      gl_FragColor = vec4(mix(base, glow, v_h*0.85), v_fog * u_alpha);
+    }`;
+  const FRAG_POINT = `
+    precision mediump float;
+    varying float v_fog; varying float v_h;
+    uniform float u_alpha;
+    void main(){
+      vec2 c = gl_PointCoord - 0.5;
+      if(dot(c,c) > 0.25) discard;
+      vec3 base = vec3(0.35, 0.42, 0.55);
+      vec3 glow = vec3(0.302, 0.486, 1.0);
+      gl_FragColor = vec4(mix(base, glow, v_h), v_fog * u_alpha);
+    }`;
+
+  function compile(type,src){
+    const s = gl.createShader(type);
+    gl.shaderSource(s,src); gl.compileShader(s);
+    if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) return null;
+    return s;
+  }
+  function program(fragSrc){
+    const v = compile(gl.VERTEX_SHADER,VERT), f = compile(gl.FRAGMENT_SHADER,fragSrc);
+    if(!v || !f) return null;
+    const p = gl.createProgram();
+    gl.attachShader(p,v); gl.attachShader(p,f); gl.linkProgram(p);
+    if(!gl.getProgramParameter(p,gl.LINK_STATUS)) return null;
+    return p;
+  }
+  const progLine = program(FRAG_LINE), progPoint = program(FRAG_POINT);
+  if(!progLine || !progPoint) return false;
+
+  /* --- geometry: a COLS x ROWS grid in the x/z plane --- */
+  const COLS=120, ROWS=64, XMAX=9, ZMAX=18;
+  const verts = new Float32Array(COLS*ROWS*2);
+  let vi=0;
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      verts[vi++] = (c/(COLS-1)*2-1)*XMAX;   // x
+      verts[vi++] = r/(ROWS-1)*ZMAX;         // z (depth)
+    }
+  }
+  const idx=[];
+  for(let r=0;r<ROWS;r++)
+    for(let c=0;c<COLS-1;c++) idx.push(r*COLS+c, r*COLS+c+1);
+  for(let r=0;r<ROWS-1;r++)
+    for(let c=0;c<COLS;c+=2) idx.push(r*COLS+c, (r+1)*COLS+c);
+  const indices = new Uint16Array(idx);
+
+  const vbo = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER,vbo);
+  gl.bufferData(gl.ARRAY_BUFFER,verts,gl.STATIC_DRAW);
+  const ibo = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ibo);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,indices,gl.STATIC_DRAW);
+
+  /* --- tiny mat4 helpers --- */
+  function perspective(fovy,aspect,near,far){
+    const f=1/Math.tan(fovy/2), nf=1/(near-far);
+    return new Float32Array([f/aspect,0,0,0, 0,f,0,0, 0,0,(far+near)*nf,-1, 0,0,2*far*near*nf,0]);
+  }
+  function lookAt(ex,ey,ez, tx,ty,tz){
+    let zx=ex-tx, zy=ey-ty, zz=ez-tz;
+    let zl=Math.hypot(zx,zy,zz); zx/=zl; zy/=zl; zz/=zl;
+    let xx=zz, xz=-zx;                       // cross(up=(0,1,0), z)
+    let xl=Math.hypot(xx,xz); xx/=xl; xz/=xl;
+    const yx=zy*xz, yy=zz*xx-zx*xz, yz=-zy*xx; // cross(z, x)
+    return new Float32Array([
+      xx,yx,zx,0,  0,yy,zy,0,  xz,yz,zz,0,
+      -(xx*ex+xz*ez), -(yx*ex+yy*ey+yz*ez), -(zx*ex+zy*ey+zz*ez), 1
+    ]);
+  }
+
+  const dpr = Math.min(devicePixelRatio||1, 2);
+  let W,H,proj;
+  function resize(){
+    W = canvas.offsetWidth; H = canvas.offsetHeight;
+    canvas.width = W*dpr; canvas.height = H*dpr;
+    gl.viewport(0,0,canvas.width,canvas.height);
+    proj = perspective(Math.PI/3, W/H, .1, 40);
+  }
+  resize(); addEventListener("resize",resize);
+
+  let mx=.5,my=.5,cx=0,cy=0;
+  addEventListener("pointermove",e=>{ mx=e.clientX/innerWidth; my=e.clientY/innerHeight; },{passive:true});
+
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);       // additive glow on the ink ground
+  gl.clearColor(0,0,0,0);
+
+  function bind(prog,t){
+    gl.useProgram(prog);
+    const loc = gl.getAttribLocation(prog,"a_xz");
+    gl.bindBuffer(gl.ARRAY_BUFFER,vbo);
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog,"u_proj"),false,proj);
+    const ex = cx + Math.sin(t*.08)*.5;
+    const ey = 2.1 + cy;
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog,"u_view"),false,lookAt(ex,ey,-2.4, 0,.2,9));
+    gl.uniform1f(gl.getUniformLocation(prog,"u_t"),t);
+    gl.uniform1f(gl.getUniformLocation(prog,"u_dpr"),dpr);
+  }
+  function frame(t){
+    cx += ((mx-.5)*1.4 - cx)*.03;
+    cy += ((my-.5)*.7  - cy)*.03;
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    bind(progLine,t);
+    gl.uniform1f(gl.getUniformLocation(progLine,"u_alpha"),.22);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ibo);
+    gl.drawElements(gl.LINES,indices.length,gl.UNSIGNED_SHORT,0);
+    bind(progPoint,t);
+    gl.uniform1f(gl.getUniformLocation(progPoint,"u_alpha"),.6);
+    gl.drawArrays(gl.POINTS,0,COLS*ROWS);
+  }
+  if(reduced){ frame(1.8); }
+  else{ (function loop(now){ frame(now/1000); requestAnimationFrame(loop); })(0); }
+  return true;
+}
+
+function init2DField(canvas){
+  const ctx = canvas.getContext("2d");
   let W,H,pts=[],mx=.5,my=.5,dpr=Math.min(devicePixelRatio||1,2);
   function resize(){
-    W = field.offsetWidth; H = field.offsetHeight;
-    field.width = W*dpr; field.height = H*dpr;
+    W = canvas.offsetWidth; H = canvas.offsetHeight;
+    canvas.width = W*dpr; canvas.height = H*dpr;
     ctx.setTransform(dpr,0,0,dpr,0,0);
     const n = Math.min(130, Math.floor(W*H/16000));
     pts = Array.from({length:n},()=>({
@@ -1018,6 +1176,12 @@ if(field && !reduced){
     }
     requestAnimationFrame(draw);
   })();
+}
+
+if(field){
+  let ok = false;
+  try{ ok = initWebGLField(field); }catch(e){ ok = false; }
+  if(!ok && !reduced) init2DField(field);
 }
 
 /* ============================================================
