@@ -17,8 +17,13 @@ Type: **Archivo** (variable, 850 weight display) + **JetBrains Mono** (labels/da
 
 ## Features
 
+- **Scroll-scrubbed hero video** — a pinned 300vh hero where scroll drives the
+  playhead of an 8s cinematic camera flight over a 3D wave-mesh "web"
+  (`hero-flight.mp4` / `.webm`, rendered from the site's own WebGL scene and
+  encoded with a 10-frame GOP for smooth seeking)
+- Raw-WebGL 3D wave-mesh field as the live fallback wherever video can't load,
+  with a 2D canvas constellation beneath that
 - Preloader with tabular counter and curtain lift
-- Canvas particle constellation hero with mouse parallax
 - Staggered mask-reveal headline
 - Custom dual cursor (dot + lagging ring) on fine pointers only
 - Scroll progress hairline, blur-on-scroll nav

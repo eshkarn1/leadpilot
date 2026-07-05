@@ -177,13 +177,20 @@ nav a.navlink:hover::after{transform:scaleX(1);transform-origin:left}
 /* ============================================================
    Hero
    ============================================================ */
+.hero-pin{height:300vh}   /* 3 screens of scroll = one full flight */
 .hero{
-  position:relative;min-height:100svh;
+  position:sticky;top:0;height:100svh;
   display:flex;flex-direction:column;justify-content:center;
   padding:8rem var(--gutter) 4rem;
   overflow:hidden;
 }
 #field{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+#hero-video{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;z-index:0;
+  opacity:0;transition:opacity 1s var(--ease-out);
+}
+#hero-video.ready{opacity:1}
 .hero::after{ /* vignette to keep type legible */
   content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
   background:radial-gradient(ellipse 90% 70% at 50% 45%,transparent 40%,var(--ink) 100%);
@@ -592,12 +599,14 @@ body.modal-open{overflow:hidden}
 <main>
 
 <!-- ================= Hero ================= -->
+<div class="hero-pin">
 <section class="hero" aria-label="Intro">
+  <video id="hero-video" muted playsinline preload="auto" aria-hidden="true"></video>
   <canvas id="field" aria-hidden="true"></canvas>
 
   <div class="hero-meta">
     <span class="mono">Motion studio — est. 2021</span>
-    <span class="mono" id="coords">WebGL field — rendering live</span>
+    <span class="mono" id="coords">Scroll to fly the field</span>
   </div>
 
   <h1>
@@ -615,6 +624,7 @@ body.modal-open{overflow:hidden}
     </div>
   </div>
 </section>
+</div>
 
 <!-- ================= Marquee ================= -->
 <div class="marquee" aria-hidden="true">
@@ -1178,11 +1188,65 @@ function init2DField(canvas){
   })();
 }
 
-if(field){
+/* ============================================================
+   Scroll-scrubbed hero video — 300vh of scroll flies the camera
+   through an 8s flight over the web. The WebGL field stands in
+   until the video is ready, and takes over entirely if it can't
+   load (offline preview, blocked media, old browsers).
+   ============================================================ */
+let fieldStarted = false;
+function startField(){
+  if(fieldStarted || !field) return;
+  fieldStarted = true;
   let ok = false;
   try{ ok = initWebGLField(field); }catch(e){ ok = false; }
   if(!ok && !reduced) init2DField(field);
 }
+
+const heroVideo = document.getElementById("hero-video");
+const heroPin = document.querySelector(".hero-pin");
+
+function initHeroVideo(){
+  if(!heroVideo || !heroPin || reduced) return false;
+  /* the site is served at "/" (rewrite), "/motion", or opened as a file */
+  const local = location.protocol === "file:" || location.pathname.includes("motion");
+  const base = local ? "" : "/motion/";
+  heroVideo.poster = base + "hero-poster.jpg";
+  let lastSource;
+  [["hero-flight.mp4","video/mp4"],["hero-flight.webm","video/webm"]].forEach(([f,t])=>{
+    const s = document.createElement("source");
+    s.src = base + f; s.type = t;
+    heroVideo.appendChild(s);
+    lastSource = s;
+  });
+  heroVideo.load();
+
+  let ok = false;
+  heroVideo.addEventListener("loadeddata",()=>{
+    ok = true;
+    heroVideo.classList.add("ready");
+    field.style.display = "none";
+  });
+  const bail = ()=>{ if(ok) return; heroVideo.style.display="none"; startField(); };
+  lastSource.addEventListener("error",bail);   /* all sources failed */
+  setTimeout(bail, 6000);
+
+  let cur = 0;
+  (function scrub(){
+    if(ok && heroVideo.duration){
+      const r = heroPin.getBoundingClientRect();
+      const span = r.height - innerHeight;
+      const prog = span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 0;
+      const target = prog * (heroVideo.duration - 0.06);
+      cur += (target - cur) * 0.14;                  // eased scrubbing
+      if(Math.abs(cur - target) > 0.001) heroVideo.currentTime = cur;
+    }
+    requestAnimationFrame(scrub);
+  })();
+  return true;
+}
+
+if(!initHeroVideo()) startField();
 
 /* ============================================================
    Live case scenes — each portfolio thumbnail is a running demo
