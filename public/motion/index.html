@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KINETIQ — Motion Websites, Engineered</title>
+<meta name="description" content="KINETIQ is a motion studio that designs and engineers cinematic, high-trust websites for ambitious companies.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100..900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   KINETIQ — design tokens
+   Deliberate single-theme world: a vault at midnight.
+   ============================================================ */
+:root{
+  --ink:      #04070E;   /* ground — near-black, blue bias */
+  --abyss:    #081226;   /* deep navy panel */
+  --panel:    #0A1530;   /* raised panel */
+  --signal:   #4D7CFF;   /* the one accent */
+  --signal-2: #2E5BFF;   /* accent deep, gradients only */
+  --arctic:   #EFF3FA;   /* type white, blue bias */
+  --steel:    #8B96AB;   /* secondary type, blue-grey */
+  --hairline: #16233F;   /* borders */
+  --hairline-2:#0E1830;
+
+  --font-display:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --font-body:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"SF Mono","Cascadia Code",Menlo,monospace;
+
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-swift:cubic-bezier(.65,0,.35,1);
+  --gutter:clamp(1.25rem,4vw,4rem);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+html:focus-within{scroll-behavior:smooth}
+body{
+  background:var(--ink);
+  color:var(--arctic);
+  font-family:var(--font-body);
+  font-size:1rem;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:var(--signal);color:var(--ink)}
+img,canvas,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
+
+/* ---------- utility type ---------- */
+.mono{
+  font-family:var(--font-mono);
+  font-size:.6875rem;
+  font-weight:500;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--steel);
+}
+.eyebrow{
+  display:flex;align-items:center;gap:.75rem;
+  margin-bottom:2.5rem;
+}
+.eyebrow::before{
+  content:"";width:2.5rem;height:1px;background:var(--signal);
+  flex:none;
+}
+.eyebrow .mono{color:var(--signal)}
+
+/* ============================================================
+   Preloader
+   ============================================================ */
+#loader{
+  position:fixed;inset:0;z-index:100;
+  background:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;
+  transition:transform 1s var(--ease-swift),visibility 0s 1s;
+}
+#loader.done{transform:translateY(-100%);visibility:hidden}
+#loader .wordmark{
+  font-family:var(--font-display);
+  font-weight:850;font-size:clamp(1.5rem,4vw,2.25rem);
+  letter-spacing:.32em;text-indent:.32em;
+}
+#loader .wordmark em{font-style:normal;color:var(--signal)}
+#loader-bar{
+  width:min(16rem,60vw);height:1px;background:var(--hairline);
+  position:relative;overflow:hidden;
+}
+#loader-bar::after{
+  content:"";position:absolute;inset:0;background:var(--signal);
+  transform:scaleX(var(--p,0));transform-origin:left;
+  transition:transform .2s linear;
+}
+#loader-pct{font-variant-numeric:tabular-nums}
+
+/* ============================================================
+   Cursor  (pointer devices only)
+   ============================================================ */
+#cursor,#cursor-ring{position:fixed;top:0;left:0;pointer-events:none;z-index:99;display:none}
+@media (hover:hover) and (pointer:fine){
+  #cursor,#cursor-ring{display:block}
+  #cursor{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--signal);
+    transform:translate(-50%,-50%);
+  }
+  #cursor-ring{
+    width:34px;height:34px;border-radius:50%;
+    border:1px solid rgba(77,124,255,.5);
+    transform:translate(-50%,-50%);
+    transition:width .3s var(--ease-out),height .3s var(--ease-out),border-color .3s;
+  }
+  body.cursor-hover #cursor-ring{
+    width:64px;height:64px;border-color:rgba(77,124,255,.9);
+  }
+}
+
+/* ---------- scroll progress ---------- */
+#progress{
+  position:fixed;top:0;left:0;height:2px;width:100%;z-index:60;
+  background:linear-gradient(90deg,var(--signal-2),var(--signal));
+  transform:scaleX(0);transform-origin:left;
+}
+
+/* ============================================================
+   Nav
+   ============================================================ */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.25rem var(--gutter);
+  opacity:0;transform:translateY(-.75rem);
+  transition:opacity .8s var(--ease-out) .2s,transform .8s var(--ease-out) .2s,
+             background .4s,border-color .4s;
+  border-bottom:1px solid transparent;
+}
+body.loaded header{opacity:1;transform:none}
+header.scrolled{
+  background:rgba(4,7,14,.82);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-bottom-color:var(--hairline-2);
+}
+.brand{
+  font-family:var(--font-display);font-weight:850;
+  letter-spacing:.28em;font-size:.9375rem;
+}
+.brand em{font-style:normal;color:var(--signal)}
+nav{display:flex;gap:2.25rem;align-items:center}
+nav a.navlink{
+  font-family:var(--font-mono);font-size:.6875rem;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--steel);
+  position:relative;padding:.25rem 0;
+  transition:color .3s;
+}
+nav a.navlink::after{
+  content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;
+  background:var(--signal);transform:scaleX(0);transform-origin:right;
+  transition:transform .35s var(--ease-swift);
+}
+nav a.navlink:hover{color:var(--arctic)}
+nav a.navlink:hover::after{transform:scaleX(1);transform-origin:left}
+@media (max-width:640px){ nav a.navlink{display:none} }
+.nav-cta{
+  font-family:var(--font-mono);font-size:.6875rem;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+  padding:.6rem 1.1rem;border:1px solid var(--hairline);
+  color:var(--arctic);
+  transition:border-color .3s,background .3s,color .3s;
+}
+.nav-cta:hover{border-color:var(--signal);background:var(--signal);color:var(--ink)}
+
+/* ============================================================
+   Hero
+   ============================================================ */
+.hero{
+  position:relative;min-height:100svh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:8rem var(--gutter) 4rem;
+  overflow:hidden;
+}
+#field{position:absolute;inset:0;z-index:0}
+.hero::after{ /* vignette to keep type legible */
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 90% 70% at 50% 45%,transparent 40%,var(--ink) 100%);
+}
+.hero > *{position:relative;z-index:2}
+.hero-meta{
+  display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  margin-bottom:clamp(2rem,5vh,4rem);
+}
+h1{
+  font-family:var(--font-display);
+  font-weight:850;
+  font-size:clamp(2.9rem,10.5vw,9.5rem);
+  line-height:.95;
+  letter-spacing:-.02em;
+  text-transform:uppercase;
+  text-wrap:balance;
+}
+h1 .line{display:block;overflow:hidden}
+h1 .line > span{
+  display:inline-block;
+  transform:translateY(110%) rotate(2deg);
+  transform-origin:left top;
+  transition:transform 1.1s var(--ease-out);
+}
+body.loaded h1 .line:nth-child(1) > span{transition-delay:.15s}
+body.loaded h1 .line:nth-child(2) > span{transition-delay:.27s}
+body.loaded h1 .line:nth-child(3) > span{transition-delay:.39s}
+body.loaded h1 .line > span{transform:none}
+h1 .hollow{
+  color:transparent;
+  -webkit-text-stroke:1.5px var(--arctic);
+}
+h1 .accent{color:var(--signal)}
+.hero-sub{
+  margin-top:clamp(2rem,5vh,3.5rem);
+  display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;flex-wrap:wrap;
+}
+.hero-sub p{
+  max-width:34ch;color:var(--steel);font-size:clamp(1rem,1.3vw,1.2rem);
+  opacity:0;transform:translateY(1rem);
+  transition:opacity 1s var(--ease-out) .7s,transform 1s var(--ease-out) .7s;
+}
+body.loaded .hero-sub p{opacity:1;transform:none}
+.scroll-hint{
+  display:flex;align-items:center;gap:.75rem;
+  opacity:0;transition:opacity 1s var(--ease-out) 1.1s;
+}
+body.loaded .scroll-hint{opacity:1}
+.scroll-hint .tick{
+  width:1px;height:3rem;background:var(--hairline);position:relative;overflow:hidden;
+}
+.scroll-hint .tick::after{
+  content:"";position:absolute;left:0;top:-100%;width:100%;height:100%;
+  background:var(--signal);animation:drop 2s var(--ease-swift) infinite;
+}
+@keyframes drop{0%{top:-100%}60%,100%{top:100%}}
+
+/* ============================================================
+   Marquee
+   ============================================================ */
+.marquee{
+  border-top:1px solid var(--hairline-2);
+  border-bottom:1px solid var(--hairline-2);
+  overflow:hidden;padding:1.4rem 0;
+  background:var(--abyss);
+}
+.marquee-track{
+  display:flex;gap:3.5rem;width:max-content;
+  animation:marquee 28s linear infinite;
+}
+.marquee:hover .marquee-track{animation-play-state:paused}
+.marquee-track span{
+  font-family:var(--font-display);font-weight:850;font-size:1.05rem;
+  letter-spacing:.22em;text-transform:uppercase;white-space:nowrap;
+  color:var(--steel);display:flex;align-items:center;gap:3.5rem;
+}
+.marquee-track span::after{content:"◆";color:var(--signal);font-size:.55rem}
+@keyframes marquee{to{transform:translateX(-50%)}}
+
+/* ============================================================
+   Sections — shared
+   ============================================================ */
+section{padding:clamp(5rem,12vh,9rem) var(--gutter)}
+.sec-head{
+  display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;
+  margin-bottom:clamp(2.5rem,6vh,4.5rem);flex-wrap:wrap;
+}
+h2{
+  font-family:var(--font-display);font-weight:850;
+  font-size:clamp(2rem,5.5vw,4.25rem);line-height:1;
+  letter-spacing:-.015em;text-transform:uppercase;text-wrap:balance;
+}
+.sec-head .count{
+  font-family:var(--font-mono);font-size:.75rem;color:var(--steel);
+  letter-spacing:.14em;font-variant-numeric:tabular-nums;
+}
+
+/* scroll reveal */
+.reveal{opacity:0;transform:translateY(2.2rem);
+  transition:opacity .9s var(--ease-out),transform .9s var(--ease-out)}
+.reveal.in{opacity:1;transform:none}
+.reveal[data-delay="1"]{transition-delay:.1s}
+.reveal[data-delay="2"]{transition-delay:.2s}
+.reveal[data-delay="3"]{transition-delay:.3s}
+
+/* ============================================================
+   Work — live specimen cards
+   ============================================================ */
+.work-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:1.5rem;
+}
+@media (max-width:820px){ .work-grid{grid-template-columns:1fr} }
+.case{
+  position:relative;background:var(--abyss);
+  border:1px solid var(--hairline-2);
+  padding:1.25rem;
+  transition:border-color .4s,transform .5s var(--ease-out);
+  transform-style:preserve-3d;
+  will-change:transform;
+}
+.case:hover{border-color:var(--hairline)}
+.case-stage{
+  position:relative;aspect-ratio:4/3;overflow:hidden;
+  background:var(--ink);border:1px solid var(--hairline-2);
+}
+.case-stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.case-info{
+  display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+  padding-top:1.1rem;
+}
+.case-info h3{
+  font-family:var(--font-display);font-weight:700;font-size:1.05rem;
+  letter-spacing:.04em;text-transform:uppercase;
+}
+.case-tag{font-family:var(--font-mono);font-size:.625rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--steel);white-space:nowrap}
+.case-desc{color:var(--steel);font-size:.875rem;max-width:38ch;padding-top:.35rem}
+.case .live{
+  position:absolute;top:2rem;left:2rem;z-index:2;
+  display:flex;align-items:center;gap:.5rem;
+  font-family:var(--font-mono);font-size:.5625rem;font-weight:700;
+  letter-spacing:.2em;color:var(--arctic);
+  background:rgba(4,7,14,.6);padding:.3rem .55rem;
+  border:1px solid var(--hairline);
+  backdrop-filter:blur(4px);
+}
+.case .live::before{
+  content:"";width:6px;height:6px;border-radius:50%;background:var(--signal);
+  animation:blink 1.6s ease-in-out infinite;
+}
+@keyframes blink{50%{opacity:.25}}
+
+/* ============================================================
+   Capabilities — expanding rows
+   ============================================================ */
+.caps{border-top:1px solid var(--hairline-2)}
+.cap{
+  display:grid;grid-template-columns:auto 1fr auto;gap:1.5rem;align-items:center;
+  padding:1.75rem 0;border-bottom:1px solid var(--hairline-2);
+  transition:padding .45s var(--ease-swift);
+  position:relative;
+}
+.cap::before{
+  content:"";position:absolute;left:0;bottom:-1px;height:1px;width:100%;
+  background:var(--signal);transform:scaleX(0);transform-origin:left;
+  transition:transform .5s var(--ease-swift);
+}
+.cap:hover::before{transform:scaleX(1)}
+.cap:hover{padding:2.5rem 0}
+.cap .idx{font-family:var(--font-mono);font-size:.6875rem;color:var(--steel);
+  font-variant-numeric:tabular-nums;letter-spacing:.1em}
+.cap h3{
+  font-family:var(--font-display);font-weight:850;
+  font-size:clamp(1.4rem,3.4vw,2.6rem);text-transform:uppercase;letter-spacing:-.01em;
+  transition:color .3s,transform .45s var(--ease-swift);
+}
+.cap:hover h3{color:var(--signal);transform:translateX(.5rem)}
+.cap p{grid-column:2;color:var(--steel);max-width:52ch;font-size:.9375rem;
+  max-height:0;overflow:hidden;opacity:0;
+  transition:max-height .5s var(--ease-swift),opacity .4s,margin .5s var(--ease-swift)}
+.cap:hover p{max-height:6rem;opacity:1;margin-top:.5rem}
+.cap .arrow{
+  font-family:var(--font-mono);color:var(--steel);font-size:1.1rem;
+  transition:transform .45s var(--ease-swift),color .3s;
+}
+.cap:hover .arrow{transform:translateX(.4rem) rotate(-45deg);color:var(--signal)}
+
+/* ============================================================
+   Process — a real sequence, so numbers carry meaning
+   ============================================================ */
+.process{background:var(--abyss);
+  border-top:1px solid var(--hairline-2);border-bottom:1px solid var(--hairline-2)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(15rem,100%),1fr));gap:2.5rem}
+.step{position:relative;padding-top:1.5rem;border-top:1px solid var(--hairline)}
+.step::before{
+  content:"";position:absolute;top:-1px;left:0;width:3rem;height:1px;background:var(--signal);
+}
+.step .idx{font-family:var(--font-mono);font-size:.6875rem;color:var(--signal);
+  letter-spacing:.16em;font-variant-numeric:tabular-nums}
+.step h3{font-family:var(--font-display);font-weight:700;font-size:1.15rem;
+  text-transform:uppercase;letter-spacing:.05em;margin:.75rem 0 .5rem}
+.step p{color:var(--steel);font-size:.9rem;max-width:34ch}
+
+/* ============================================================
+   Metrics
+   ============================================================ */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(11rem,100%),1fr));
+  gap:1px;background:var(--hairline-2);border:1px solid var(--hairline-2)}
+.metric{background:var(--ink);padding:2.5rem 2rem}
+.metric .num{
+  font-family:var(--font-display);font-weight:850;
+  font-size:clamp(2.6rem,6vw,4.5rem);line-height:1;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;
+}
+.metric .num em{font-style:normal;color:var(--signal)}
+.metric .lbl{margin-top:.75rem}
+
+/* ============================================================
+   Manifesto
+   ============================================================ */
+.manifesto p{
+  font-family:var(--font-display);font-weight:700;
+  font-size:clamp(1.6rem,4.2vw,3.2rem);line-height:1.25;letter-spacing:-.01em;
+  max-width:24ch;text-wrap:balance;
+}
+.manifesto p .dim{color:var(--hairline)}
+.manifesto p .word{transition:color .6s var(--ease-out)}
+
+/* ============================================================
+   CTA
+   ============================================================ */
+.cta{
+  text-align:center;position:relative;overflow:hidden;
+  padding-top:clamp(6rem,16vh,11rem);padding-bottom:clamp(6rem,16vh,11rem);
+}
+.cta::before{
+  content:"";position:absolute;inset:-20% -10%;pointer-events:none;
+  background:radial-gradient(ellipse 50% 45% at 50% 60%,rgba(46,91,255,.16),transparent 70%);
+}
+.cta h2{font-size:clamp(2.6rem,8vw,7rem);margin-bottom:1.25rem}
+.cta .sub{color:var(--steel);max-width:44ch;margin:0 auto 3rem}
+.magnetic{
+  display:inline-flex;align-items:center;gap:1rem;
+  font-family:var(--font-mono);font-weight:700;font-size:.8125rem;
+  letter-spacing:.18em;text-transform:uppercase;
+  padding:1.35rem 2.75rem;
+  border:1px solid var(--signal);color:var(--arctic);
+  position:relative;overflow:hidden;
+  transition:color .35s var(--ease-swift);
+  will-change:transform;
+}
+.magnetic::before{
+  content:"";position:absolute;inset:0;background:var(--signal);
+  transform:translateY(101%);transition:transform .4s var(--ease-swift);
+  z-index:-1;
+}
+.magnetic:hover{color:var(--ink)}
+.magnetic:hover::before{transform:none}
+.cta .mail{display:block;margin-top:2.5rem}
+.cta .mail a{border-bottom:1px solid var(--hairline);padding-bottom:2px;
+  transition:border-color .3s,color .3s}
+.cta .mail a:hover{color:var(--arctic);border-color:var(--signal)}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+footer{
+  border-top:1px solid var(--hairline-2);
+  padding:2.5rem var(--gutter);
+  display:flex;justify-content:space-between;align-items:center;gap:1.5rem;flex-wrap:wrap;
+}
+footer .socials{display:flex;gap:1.75rem}
+footer .socials a{transition:color .3s}
+footer .socials a:hover{color:var(--signal)}
+
+/* ============================================================
+   Reduced motion — the site stays composed, just still
+   ============================================================ */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important}
+  h1 .line > span{transform:none}
+  .hero-sub p,.scroll-hint{opacity:1;transform:none}
+  .reveal{opacity:1;transform:none}
+  #cursor,#cursor-ring{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= Preloader ================= -->
+<div id="loader" aria-hidden="true">
+  <div class="wordmark">KINETI<em>Q</em></div>
+  <div id="loader-bar"></div>
+  <div id="loader-pct" class="mono">00</div>
+</div>
+
+<div id="cursor" aria-hidden="true"></div>
+<div id="cursor-ring" aria-hidden="true"></div>
+<div id="progress" aria-hidden="true"></div>
+
+<!-- ================= Nav ================= -->
+<header id="top">
+  <a class="brand" href="#top" data-hover>KINETI<em>Q</em></a>
+  <nav aria-label="Primary">
+    <a class="navlink" href="#work" data-hover>Work</a>
+    <a class="navlink" href="#capabilities" data-hover>Capabilities</a>
+    <a class="navlink" href="#process" data-hover>Process</a>
+    <a class="nav-cta" href="#contact" data-hover>Start a project</a>
+  </nav>
+</header>
+
+<main>
+
+<!-- ================= Hero ================= -->
+<section class="hero" aria-label="Intro">
+  <canvas id="field" aria-hidden="true"></canvas>
+
+  <div class="hero-meta">
+    <span class="mono">Motion studio — est. 2021</span>
+    <span class="mono" id="coords">51.5072°N / 0.1276°W</span>
+  </div>
+
+  <h1>
+    <span class="line"><span>We make</span></span>
+    <span class="line"><span>the <span class="hollow">web</span></span></span>
+    <span class="line"><span><span class="accent">move</span>.</span></span>
+  </h1>
+
+  <div class="hero-sub">
+    <p>KINETIQ designs and engineers motion-first websites for companies
+       that refuse to look static. Cinematic, fast, and built to be trusted.</p>
+    <div class="scroll-hint">
+      <span class="tick"></span>
+      <span class="mono">Scroll</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Marquee ================= -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>Motion design</span><span>WebGL</span><span>Interaction</span>
+    <span>Creative development</span><span>Brand systems</span><span>3D</span>
+    <span>Motion design</span><span>WebGL</span><span>Interaction</span>
+    <span>Creative development</span><span>Brand systems</span><span>3D</span>
+  </div>
+</div>
+
+<!-- ================= Work ================= -->
+<section id="work" aria-label="Selected work">
+  <div class="eyebrow"><span class="mono">Selected work</span></div>
+  <div class="sec-head">
+    <h2 class="reveal">Every thumbnail<br>is running live.</h2>
+    <span class="count reveal" data-delay="1">No screenshots. 04 / 04 rendering now.</span>
+  </div>
+
+  <div class="work-grid">
+    <article class="case reveal" data-tilt>
+      <div class="case-stage">
+        <canvas data-scene="orbit" aria-label="Live animation: orbital ring system"></canvas>
+      </div>
+      <span class="live">Live</span>
+      <div class="case-info"><h3>Helios Bank</h3><span class="case-tag">WebGL / Fintech</span></div>
+      <p class="case-desc">An orbital data system for a digital bank — precision motion that reads as security.</p>
+    </article>
+
+    <article class="case reveal" data-delay="1" data-tilt>
+      <div class="case-stage">
+        <canvas data-scene="wave" aria-label="Live animation: signal waveform"></canvas>
+      </div>
+      <span class="live">Live</span>
+      <div class="case-info"><h3>Meridian Audio</h3><span class="case-tag">Canvas / Product</span></div>
+      <p class="case-desc">A living waveform hero for a spatial-audio brand. The site listens back.</p>
+    </article>
+
+    <article class="case reveal" data-delay="2" data-tilt>
+      <div class="case-stage">
+        <canvas data-scene="grid" aria-label="Live animation: pulsing grid field"></canvas>
+      </div>
+      <span class="live">Live</span>
+      <div class="case-info"><h3>Vantage Cloud</h3><span class="case-tag">Interaction / SaaS</span></div>
+      <p class="case-desc">An infrastructure grid that breathes — uptime you can feel before you read it.</p>
+    </article>
+
+    <article class="case reveal" data-delay="3" data-tilt>
+      <div class="case-stage">
+        <canvas data-scene="type" aria-label="Live animation: kinetic typography loop"></canvas>
+      </div>
+      <span class="live">Live</span>
+      <div class="case-info"><h3>Northline</h3><span class="case-tag">Kinetic type / Editorial</span></div>
+      <p class="case-desc">A typographic engine for a publishing house. Headlines that never sit still.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ================= Capabilities ================= -->
+<section id="capabilities" aria-label="Capabilities">
+  <div class="eyebrow"><span class="mono">Capabilities</span></div>
+  <div class="sec-head">
+    <h2 class="reveal">What we build</h2>
+    <span class="count reveal" data-delay="1">05 disciplines, one team</span>
+  </div>
+
+  <div class="caps reveal">
+    <div class="cap" data-hover>
+      <span class="idx">01</span><h3>Motion websites</h3><span class="arrow">→</span>
+      <p>Full sites where motion is the architecture, not the garnish. Scroll choreography, page transitions, and load sequences designed as one continuous piece.</p>
+    </div>
+    <div class="cap" data-hover>
+      <span class="idx">02</span><h3>WebGL &amp; 3D</h3><span class="arrow">→</span>
+      <p>Real-time 3D scenes, shaders, and particle systems tuned to hold 60fps on mid-range hardware — spectacle without the spinner.</p>
+    </div>
+    <div class="cap" data-hover>
+      <span class="idx">03</span><h3>Interaction design</h3><span class="arrow">→</span>
+      <p>Cursors, hovers, and micro-feedback that make an interface feel machined. Every state answered, every input acknowledged.</p>
+    </div>
+    <div class="cap" data-hover>
+      <span class="idx">04</span><h3>Creative development</h3><span class="arrow">→</span>
+      <p>Production engineering behind the show: accessibility, reduced-motion fallbacks, and Core Web Vitals treated as a design constraint.</p>
+    </div>
+    <div class="cap" data-hover>
+      <span class="idx">05</span><h3>Brand in motion</h3><span class="arrow">→</span>
+      <p>Motion identity systems — easing curves, durations, and choreography documented so your brand moves the same everywhere.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Process ================= -->
+<section id="process" class="process" aria-label="Process">
+  <div class="eyebrow"><span class="mono">Process</span></div>
+  <div class="sec-head">
+    <h2 class="reveal">Four weeks,<br>four phases.</h2>
+    <span class="count reveal" data-delay="1">Fixed sequence. Fixed dates.</span>
+  </div>
+
+  <div class="steps">
+    <div class="step reveal">
+      <span class="idx">Phase 01</span>
+      <h3>Decode</h3>
+      <p>We interrogate the brand until we know what its motion should feel like — before a single pixel moves.</p>
+    </div>
+    <div class="step reveal" data-delay="1">
+      <span class="idx">Phase 02</span>
+      <h3>Choreograph</h3>
+      <p>Motion prototypes, not static mockups. You review the site moving from day one.</p>
+    </div>
+    <div class="step reveal" data-delay="2">
+      <span class="idx">Phase 03</span>
+      <h3>Engineer</h3>
+      <p>Production build with performance budgets enforced per scene. Beauty that ships at 60fps.</p>
+    </div>
+    <div class="step reveal" data-delay="3">
+      <span class="idx">Phase 04</span>
+      <h3>Launch &amp; tune</h3>
+      <p>Real-device passes, analytics wiring, and a two-week tuning window after go-live.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Metrics ================= -->
+<section aria-label="Studio metrics">
+  <div class="metrics reveal">
+    <div class="metric">
+      <div class="num"><span data-count="47">0</span></div>
+      <div class="lbl mono">Sites shipped</div>
+    </div>
+    <div class="metric">
+      <div class="num"><span data-count="60">0</span><em>fps</em></div>
+      <div class="lbl mono">Performance floor</div>
+    </div>
+    <div class="metric">
+      <div class="num"><span data-count="19">0</span></div>
+      <div class="lbl mono">Industry awards</div>
+    </div>
+    <div class="metric">
+      <div class="num"><span data-count="98">0</span><em>%</em></div>
+      <div class="lbl mono">Clients returning</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Manifesto ================= -->
+<section class="manifesto" aria-label="Manifesto">
+  <div class="eyebrow"><span class="mono">Why motion</span></div>
+  <p id="manifesto-text">A static website asks to be read. A moving one asks to be believed. We build the second kind.</p>
+</section>
+
+<!-- ================= CTA ================= -->
+<section id="contact" class="cta" aria-label="Contact">
+  <span class="mono" style="display:block;margin-bottom:1.5rem">Next opening — September 2026</span>
+  <h2>Let's move.</h2>
+  <p class="sub">One project at a time, taken seriously. Tell us what you're building and we'll show you what it looks like in motion.</p>
+  <a class="magnetic" href="mailto:hello@kinetiq.studio" data-hover data-magnetic>Start a project <span aria-hidden="true">→</span></a>
+  <span class="mail mono">or write to <a href="mailto:hello@kinetiq.studio" data-hover>hello@kinetiq.studio</a></span>
+</section>
+
+</main>
+
+<footer>
+  <span class="mono">© 2026 KINETIQ Studio</span>
+  <div class="socials">
+    <a class="mono" href="#top" data-hover>Instagram</a>
+    <a class="mono" href="#top" data-hover>Awwwards</a>
+    <a class="mono" href="#top" data-hover>LinkedIn</a>
+  </div>
+  <span class="mono">Built in motion, obviously</span>
+</footer>
+
+<script>
+(function(){
+"use strict";
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const finePointer = matchMedia("(hover:hover) and (pointer:fine)").matches;
+
+/* ============================================================
+   Preloader — counts to 100, lifts the curtain
+   ============================================================ */
+const loader = document.getElementById("loader");
+const pctEl  = document.getElementById("loader-pct");
+const barEl  = document.getElementById("loader-bar");
+let p = 0;
+function tickLoad(){
+  p = Math.min(100, p + 3 + Math.random()*9);
+  pctEl.textContent = String(Math.floor(p)).padStart(2,"0");
+  barEl.style.setProperty("--p", p/100);
+  if(p < 100){ setTimeout(tickLoad, 40 + Math.random()*70); }
+  else{
+    setTimeout(()=>{ loader.classList.add("done"); document.body.classList.add("loaded"); }, 250);
+  }
+}
+if(reduced){ loader.classList.add("done"); document.body.classList.add("loaded"); }
+else{ tickLoad(); }
+
+/* ============================================================
+   Custom cursor — dot leads, ring follows with lag
+   ============================================================ */
+if(finePointer && !reduced){
+  const dot = document.getElementById("cursor");
+  const ring = document.getElementById("cursor-ring");
+  let mx=-100,my=-100,rx=-100,ry=-100;
+  addEventListener("pointermove",e=>{ mx=e.clientX; my=e.clientY; },{passive:true});
+  (function loop(){
+    rx += (mx-rx)*0.16; ry += (my-ry)*0.16;
+    dot.style.transform  = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
+    ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+    requestAnimationFrame(loop);
+  })();
+  document.querySelectorAll("[data-hover]").forEach(el=>{
+    el.addEventListener("pointerenter",()=>document.body.classList.add("cursor-hover"));
+    el.addEventListener("pointerleave",()=>document.body.classList.remove("cursor-hover"));
+  });
+}
+
+/* ============================================================
+   Scroll progress + header state
+   ============================================================ */
+const progress = document.getElementById("progress");
+const header = document.querySelector("header");
+addEventListener("scroll",()=>{
+  const h = document.documentElement;
+  const max = h.scrollHeight - h.clientHeight;
+  progress.style.transform = `scaleX(${max ? h.scrollTop/max : 0})`;
+  header.classList.toggle("scrolled", h.scrollTop > 40);
+},{passive:true});
+
+/* ============================================================
+   Reveal on scroll
+   ============================================================ */
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+},{threshold:.15,rootMargin:"0px 0px -8% 0px"});
+document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
+
+/* ============================================================
+   Count-up metrics
+   ============================================================ */
+const cio = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    cio.unobserve(e.target);
+    const el = e.target, target = +el.dataset.count, t0 = performance.now(), dur = 1400;
+    if(reduced){ el.textContent = target; return; }
+    (function step(t){
+      const k = Math.min(1,(t-t0)/dur), ease = 1-Math.pow(1-k,4);
+      el.textContent = Math.round(target*ease);
+      if(k<1) requestAnimationFrame(step);
+    })(t0);
+  });
+},{threshold:.6});
+document.querySelectorAll("[data-count]").forEach(el=>cio.observe(el));
+
+/* ============================================================
+   Manifesto — words ignite left to right as you scroll
+   ============================================================ */
+const man = document.getElementById("manifesto-text");
+if(man){
+  man.innerHTML = man.textContent.split(" ").map(w=>`<span class="word dim">${w}</span>`).join(" ");
+  const words = [...man.querySelectorAll(".word")];
+  const onScroll = ()=>{
+    const r = man.getBoundingClientRect();
+    const k = Math.min(1, Math.max(0, (innerHeight*0.85 - r.top) / (r.height + innerHeight*0.35)));
+    const lit = Math.floor(k * words.length);
+    words.forEach((w,i)=>w.classList.toggle("dim", i>=lit));
+  };
+  addEventListener("scroll", onScroll, {passive:true}); onScroll();
+}
+
+/* ============================================================
+   Tilt cards
+   ============================================================ */
+if(finePointer && !reduced){
+  document.querySelectorAll("[data-tilt]").forEach(card=>{
+    card.addEventListener("pointermove",e=>{
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX-r.left)/r.width - .5;
+      const y = (e.clientY-r.top)/r.height - .5;
+      card.style.transform = `perspective(900px) rotateY(${x*6}deg) rotateX(${-y*6}deg) translateY(-4px)`;
+    });
+    card.addEventListener("pointerleave",()=>{ card.style.transform = ""; });
+  });
+}
+
+/* ============================================================
+   Magnetic button
+   ============================================================ */
+if(finePointer && !reduced){
+  document.querySelectorAll("[data-magnetic]").forEach(btn=>{
+    btn.addEventListener("pointermove",e=>{
+      const r = btn.getBoundingClientRect();
+      const x = e.clientX-(r.left+r.width/2), y = e.clientY-(r.top+r.height/2);
+      btn.style.transform = `translate(${x*.22}px,${y*.28}px)`;
+    });
+    btn.addEventListener("pointerleave",()=>{ btn.style.transform=""; });
+  });
+}
+
+/* ============================================================
+   Hero particle field — drifting constellation, mouse parallax
+   ============================================================ */
+const field = document.getElementById("field");
+if(field && !reduced){
+  const ctx = field.getContext("2d");
+  let W,H,pts=[],mx=.5,my=.5,dpr=Math.min(devicePixelRatio||1,2);
+  function resize(){
+    W = field.offsetWidth; H = field.offsetHeight;
+    field.width = W*dpr; field.height = H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const n = Math.min(130, Math.floor(W*H/16000));
+    pts = Array.from({length:n},()=>({
+      x:Math.random()*W, y:Math.random()*H,
+      vx:(Math.random()-.5)*.22, vy:(Math.random()-.5)*.22,
+      z:.4+Math.random()*.6
+    }));
+  }
+  resize(); addEventListener("resize",resize);
+  addEventListener("pointermove",e=>{ mx=e.clientX/innerWidth; my=e.clientY/innerHeight; },{passive:true});
+  const LINK = 120;
+  (function draw(){
+    ctx.clearRect(0,0,W,H);
+    const px = (mx-.5)*26, py=(my-.5)*26;
+    for(const pt of pts){
+      pt.x += pt.vx; pt.y += pt.vy;
+      if(pt.x<-20)pt.x=W+20; if(pt.x>W+20)pt.x=-20;
+      if(pt.y<-20)pt.y=H+20; if(pt.y>H+20)pt.y=-20;
+    }
+    ctx.lineWidth = 1;
+    for(let i=0;i<pts.length;i++){
+      const a=pts[i];
+      for(let j=i+1;j<pts.length;j++){
+        const b=pts[j], dx=a.x-b.x, dy=a.y-b.y, d=dx*dx+dy*dy;
+        if(d<LINK*LINK){
+          const o=(1-Math.sqrt(d)/LINK)*.14;
+          ctx.strokeStyle=`rgba(77,124,255,${o})`;
+          ctx.beginPath();
+          ctx.moveTo(a.x+px*a.z, a.y+py*a.z);
+          ctx.lineTo(b.x+px*b.z, b.y+py*b.z);
+          ctx.stroke();
+        }
+      }
+    }
+    for(const pt of pts){
+      ctx.fillStyle=`rgba(139,150,171,${.25+pt.z*.4})`;
+      ctx.beginPath();
+      ctx.arc(pt.x+px*pt.z, pt.y+py*pt.z, pt.z*1.4, 0, 7);
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  })();
+}
+
+/* ============================================================
+   Live case scenes — each portfolio thumbnail is a running demo
+   ============================================================ */
+const SIGNAL="#4D7CFF", STEEL="#8B96AB", ARCTIC="#EFF3FA";
+
+function makeScene(canvas, render){
+  const ctx = canvas.getContext("2d");
+  let W,H,dpr=Math.min(devicePixelRatio||1,2),running=false,raf;
+  function resize(){
+    W = canvas.offsetWidth; H = canvas.offsetHeight;
+    canvas.width=W*dpr; canvas.height=H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  resize(); addEventListener("resize",resize);
+  function loop(t){ render(ctx,W,H,t/1000); raf=requestAnimationFrame(loop); }
+  const vio = new IntersectionObserver(es=>{
+    es.forEach(e=>{
+      if(e.isIntersecting && !running){ running=true; raf=requestAnimationFrame(loop); }
+      else if(!e.isIntersecting && running){ running=false; cancelAnimationFrame(raf); }
+    });
+  },{threshold:.05});
+  if(reduced){ resize(); render(ctx,W,H,1.7); } else { vio.observe(canvas); }
+}
+
+const scenes = {
+  /* Helios Bank — concentric orbital rings with tracked satellites */
+  orbit(ctx,W,H,t){
+    ctx.clearRect(0,0,W,H);
+    const cx=W/2, cy=H/2, base=Math.min(W,H)*.11;
+    for(let i=1;i<=4;i++){
+      const r=base*i;
+      ctx.strokeStyle="rgba(22,35,63,.9)";
+      ctx.lineWidth=1;
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,7); ctx.stroke();
+      const n=i+1;
+      for(let s=0;s<n;s++){
+        const a=t*(.5-.08*i)*(i%2?1:-1)+s*Math.PI*2/n;
+        const x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r;
+        ctx.fillStyle = s===0 ? SIGNAL : STEEL;
+        ctx.beginPath(); ctx.arc(x,y,s===0?3.2:1.8,0,7); ctx.fill();
+        if(s===0){
+          ctx.strokeStyle="rgba(77,124,255,.35)";
+          ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(x,y); ctx.stroke();
+        }
+      }
+    }
+    ctx.fillStyle=ARCTIC;
+    ctx.beginPath(); ctx.arc(cx,cy,3,0,7); ctx.fill();
+  },
+
+  /* Meridian Audio — layered signal waveform */
+  wave(ctx,W,H,t){
+    ctx.clearRect(0,0,W,H);
+    const mid=H/2;
+    for(let l=0;l<3;l++){
+      const amp=H*.14*(1-l*.28), speed=1+l*.5, alpha=l===0?.9:.35-l*.08;
+      ctx.strokeStyle=l===0?SIGNAL:`rgba(139,150,171,${alpha})`;
+      ctx.lineWidth=l===0?1.6:1;
+      ctx.beginPath();
+      for(let x=0;x<=W;x+=3){
+        const k=x/W;
+        const y=mid+Math.sin(k*7+t*speed)*amp*Math.sin(k*Math.PI)
+                 +Math.sin(k*23-t*speed*1.6)*amp*.25*Math.sin(k*Math.PI);
+        x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    /* playhead */
+    const phx=(t*.12%1)*W;
+    ctx.strokeStyle="rgba(239,243,250,.25)";
+    ctx.beginPath(); ctx.moveTo(phx,H*.15); ctx.lineTo(phx,H*.85); ctx.stroke();
+  },
+
+  /* Vantage Cloud — grid of nodes pulsing radially */
+  grid(ctx,W,H,t){
+    ctx.clearRect(0,0,W,H);
+    const cols=12, rows=9, gx=W/(cols+1), gy=H/(rows+1);
+    const cx=W/2+Math.cos(t*.4)*W*.18, cy=H/2+Math.sin(t*.55)*H*.18;
+    for(let i=1;i<=cols;i++){
+      for(let j=1;j<=rows;j++){
+        const x=i*gx, y=j*gy;
+        const d=Math.hypot(x-cx,y-cy);
+        const k=Math.max(0, 1 - d/(Math.min(W,H)*.55));
+        const pulse=Math.sin(t*2 - d*.02)*.5+.5;
+        const s=1+k*pulse*2.6;
+        ctx.fillStyle = k>.55 ? SIGNAL : `rgba(139,150,171,${.18+k*.5})`;
+        ctx.beginPath(); ctx.arc(x,y,s,0,7); ctx.fill();
+      }
+    }
+  },
+
+  /* Northline — kinetic type loop */
+  type(ctx,W,H,t){
+    ctx.clearRect(0,0,W,H);
+    const words=["MOVE","READ","FEEL","MOVE"];
+    const size=Math.min(W,H)*.34;
+    ctx.font=`850 ${size}px Archivo,'Helvetica Neue',Arial,sans-serif`;
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    const cycle=2.2, phase=(t%cycle)/cycle, idx=Math.floor(t/cycle)%words.length;
+    const slide=(p)=>p<.15 ? 1-(p/.15) : p>.85 ? (p-.85)/.15 : 0;
+    const off=slide(phase)*H*.6*(phase<.5?1:-1);
+    ctx.save();
+    ctx.translate(W/2,H/2+off);
+    ctx.fillStyle=idx%2?SIGNAL:ARCTIC;
+    ctx.fillText(words[idx],0,0);
+    ctx.restore();
+    /* ghost strokes above/below */
+    ctx.strokeStyle="rgba(22,35,63,1)";
+    ctx.lineWidth=1;
+    ctx.strokeText(words[(idx+1)%words.length],W/2,H/2+off-H*.62);
+    ctx.strokeText(words[(idx+3)%words.length],W/2,H/2+off+H*.62);
+  }
+};
+
+document.querySelectorAll("[data-scene]").forEach(c=>{
+  const s = scenes[c.dataset.scene];
+  if(s) makeScene(c,s);
+});
+
+})();
+</script>
+</body>
+</html>

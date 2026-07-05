@@ -1,10 +1,10 @@
 import LeadTable, { type LeadRow } from "@/components/LeadTable";
-import { supabaseServer } from "@/lib/supabase/server";
+import { requireSupabaseServer } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 async function fetchLeads(statusFilter: string | undefined) {
-  let query = supabaseServer
+  let query = requireSupabaseServer()
     .from("leads")
     .select(
       "id, created_at, name, email, phone, service_needed, status, ai_score"
