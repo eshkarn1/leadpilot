@@ -1,11 +1,11 @@
 import LeadStatusBadge from "@/components/LeadStatusBadge";
 import LeadStatusUpdater from "@/components/LeadStatusUpdater";
-import { supabaseServer } from "@/lib/supabase/server";
+import { requireSupabaseServer } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 async function fetchLead(id: string) {
-  const { data, error } = await supabaseServer
+  const { data, error } = await requireSupabaseServer()
     .from("leads")
     .select("*")
     .eq("id", id)
