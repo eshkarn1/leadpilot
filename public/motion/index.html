@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>KINETIQ — Websites People Can't Stop Exploring</title>
-<meta name="description" content="KINETIQ designs and engineers interactive 3D websites that turn visitors into customers — living scenes, cinematic scroll, and motion that makes your brand unforgettable. Fast on every device.">
+<title>Swipe &amp; Scale — Websites People Can't Stop Exploring</title>
+<meta name="description" content="Swipe &amp; Scale designs and engineers interactive websites that turn visitors into customers — cinematic scroll-bound motion, living scenes, and a brand people remember. Fast on every device.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   KINETIQ — design tokens
+   SWIPE & SCALE — design tokens
    A vault at midnight: ink ground, signal-blue light.
    ============================================================ */
 :root{
@@ -120,8 +120,8 @@ h1,h2,h3{font-family:var(--font-display);font-weight:600;line-height:1.04;letter
 #loader.done{transform:translateY(-100%);visibility:hidden}
 #loader .wordmark{
   font-family:var(--font-display);font-weight:700;
-  font-size:clamp(1.5rem,4vw,2.25rem);
-  letter-spacing:.3em;text-indent:.3em;
+  font-size:clamp(1.25rem,3.5vw,2rem);
+  letter-spacing:.2em;text-indent:.2em;
 }
 #loader .wordmark em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 #loader-bar{
@@ -174,8 +174,8 @@ header#top{
 header#top.scrolled{box-shadow:0 10px 40px -12px rgba(0,0,0,.6)}
 header#top.hidden{transform:translate(-50%,-140%)}
 .brand{
-  font-family:var(--font-display);font-weight:700;font-size:1.05rem;
-  letter-spacing:.22em;text-indent:.22em;
+  font-family:var(--font-display);font-weight:700;font-size:.95rem;
+  letter-spacing:.14em;text-indent:.14em;
 }
 .brand em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 header#top nav{display:flex;align-items:center;gap:.25rem}
@@ -215,19 +215,41 @@ section{padding:clamp(5rem,12vh,9rem) var(--gutter);position:relative}
 .reveal[data-delay="3"]{transition-delay:.3s}
 
 /* ============================================================
-   Hero
+   Hero — pinned while the film scrubs with scroll
    ============================================================ */
+.hero-wrap{height:240vh;position:relative}
 .hero{
-  min-height:100svh;
+  position:sticky;top:0;
+  height:100svh;min-height:0;
   display:flex;flex-direction:column;justify-content:center;
-  padding-top:7rem;padding-bottom:4rem;
+  padding-top:6rem;padding-bottom:3rem;
   overflow:hidden;
 }
-#blob{
+#hero-vid{
   position:absolute;inset:0;width:100%;height:100%;
-  z-index:0;pointer-events:none;
+  object-fit:cover;z-index:0;pointer-events:none;
 }
-.hero > *:not(#blob){position:relative;z-index:1}
+/* keep type readable over the film */
+.hero::after{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(4,7,14,.85) 0%,rgba(4,7,14,.45) 45%,rgba(4,7,14,.1) 100%),
+    linear-gradient(180deg,rgba(4,7,14,.55),transparent 30%,transparent 65%,rgba(4,7,14,.92));
+}
+.hero > *:not(#hero-vid):not(.film-hud){position:relative;z-index:1}
+.film-hud{
+  position:absolute;left:50%;transform:translateX(-50%);bottom:2.4rem;z-index:1;
+  display:flex;align-items:center;gap:.9rem;white-space:nowrap;
+}
+@media (max-width:720px){ .film-hud{display:none} }
+.film-hud .bar{
+  width:8rem;height:2px;border-radius:2px;background:var(--line-2);
+  position:relative;overflow:hidden;
+}
+.film-hud .bar::after{
+  content:"";position:absolute;inset:0;background:var(--grad);
+  transform:scaleX(var(--fp,0));transform-origin:left;
+}
 .hero-meta{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2.5rem}
 .hero h1{
   font-size:clamp(2.75rem,8.2vw,7rem);
@@ -515,7 +537,7 @@ body.modal-open{overflow:hidden}
 
 <!-- ================= Preloader ================= -->
 <div id="loader" aria-hidden="true">
-  <div class="wordmark">KINETI<em>Q</em></div>
+  <div class="wordmark">SWIPE<em>&amp;</em>SCALE</div>
   <div id="loader-bar"></div>
   <div id="loader-pct" class="mono">00</div>
 </div>
@@ -526,7 +548,7 @@ body.modal-open{overflow:hidden}
 
 <!-- ================= Nav ================= -->
 <header id="top">
-  <a class="brand" href="#top" data-hover>KINETI<em>Q</em></a>
+  <a class="brand" href="#top" data-hover>SWIPE<em>&amp;</em>SCALE</a>
   <nav aria-label="Primary">
     <a class="navlink" href="#work" data-hover>Work</a>
     <a class="navlink" href="#capabilities" data-hover>Capabilities</a>
@@ -537,9 +559,13 @@ body.modal-open{overflow:hidden}
 
 <main>
 
-<!-- ================= Hero ================= -->
+<!-- ================= Hero — film bound to scroll ================= -->
+<div class="hero-wrap">
 <section class="hero" aria-label="Intro">
-  <canvas id="blob" aria-hidden="true"></canvas>
+  <video id="hero-vid" muted playsinline preload="auto" poster="/motion/hero-poster.jpg" aria-hidden="true">
+    <source src="/motion/hero-scroll.webm" type="video/webm">
+    <source src="/motion/hero-scroll.mp4" type="video/mp4">
+  </video>
 
   <div class="hero-meta">
     <span class="chip"><span class="dot"></span><span class="mono" style="color:var(--arctic)">Interactive 3D studio</span></span>
@@ -555,9 +581,9 @@ body.modal-open{overflow:hidden}
   <div class="hero-sub">
     <div>
       <p>You get five seconds before a visitor decides you're forgettable.
-         KINETIQ builds living, interactive 3D websites that make them stay,
-         explore, and remember you — cinematic motion, engineered to load
-         fast and sell harder.</p>
+         Swipe &amp; Scale builds living, interactive websites that make them
+         stay, explore, and remember you — cinematic motion, engineered to
+         load fast and sell harder.</p>
       <div class="hero-actions">
         <button class="btn btn-primary" type="button" data-hover data-magnetic data-open-lead>Get a free motion concept <span aria-hidden="true">→</span></button>
         <a class="btn btn-ghost" href="#work" data-hover>See it live <span aria-hidden="true">↓</span></a>
@@ -565,10 +591,16 @@ body.modal-open{overflow:hidden}
     </div>
     <div class="scroll-hint">
       <span class="tick"></span>
-      <span class="mono">Scroll</span>
+      <span class="mono">Scroll to play</span>
     </div>
   </div>
+
+  <div class="film-hud" aria-hidden="true">
+    <span class="mono">Film — scrubbed by your scroll</span>
+    <span class="bar" id="film-bar"></span>
+  </div>
 </section>
+</div>
 
 <!-- ================= Marquee ================= -->
 <div class="marquee" aria-hidden="true">
@@ -726,7 +758,7 @@ body.modal-open{overflow:hidden}
     <h2>Your competitors<br>are static. Move first.</h2>
     <p class="sub">We take one project at a time and treat it like our own. Send us your brief — within 48 hours you'll get a motion concept for your brand. Free, no strings, yours to keep.</p>
     <button class="btn btn-primary" type="button" data-hover data-magnetic data-open-lead>Get my free concept <span aria-hidden="true">→</span></button>
-    <span class="mail mono">or write to <a href="mailto:hello@kinetiq.studio" data-hover>hello@kinetiq.studio</a></span>
+    <span class="mail mono">or write to <a href="mailto:hello@swipeandscale.studio" data-hover>hello@swipeandscale.studio</a></span>
   </div>
 </section>
 
@@ -785,7 +817,7 @@ body.modal-open{overflow:hidden}
 </div>
 
 <footer>
-  <span class="mono">© 2026 KINETIQ Studio</span>
+  <span class="mono">© 2026 Swipe &amp; Scale Studio</span>
   <div class="socials">
     <a class="mono" href="#top" data-hover>Instagram</a>
     <a class="mono" href="#top" data-hover>Awwwards</a>
@@ -857,183 +889,46 @@ addEventListener("scroll", ()=>{
 }, {passive:true});
 
 /* ============================================================
-   Hero — the KINETIQ gyro (raw WebGL raymarch)
-   Two counter-rotating twisted rings around a breathing core.
-   Ink chrome lit by signal blue; leans with the pointer,
-   drifts away on scroll. Original to this studio.
+   Hero film — playback bound to scroll
+   The hero stays pinned for 240vh while scroll position scrubs
+   the film's timeline. All-intra encode = frame-accurate seeks.
    ============================================================ */
 (function(){
-  const canvas = document.getElementById("blob");
-  const gl = canvas.getContext("webgl", {alpha:true, antialias:false, premultipliedAlpha:true});
-  if(!gl){ canvas.style.display = "none"; return; }
+  const vid  = document.getElementById("hero-vid");
+  const wrap = document.querySelector(".hero-wrap");
+  const bar  = document.getElementById("film-bar");
+  if(!vid || !wrap) return;
 
-  const VERT = `
-    attribute vec2 a;
-    void main(){ gl_Position = vec4(a,0.,1.); }`;
+  vid.addEventListener("error", ()=>{ vid.style.display = "none"; });
 
-  const FRAG = `
-    precision highp float;
-    uniform vec2  uRes;
-    uniform float uTime;
-    uniform vec2  uMouse;   /* -1..1 */
-    uniform float uScroll;  /* 0..1 over hero */
+  let dur = 0;
+  vid.addEventListener("loadedmetadata", ()=>{ dur = vid.duration; vid.pause(); });
+  vid.load();
 
-    mat2 rot(float a){ float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
+  if(reduceMotion) return;   /* poster frame only */
 
-    /* ring with a twisting rectangular cross-section */
-    float band(vec3 p, float R, vec2 wh, float tw, float ph){
-      float a = atan(p.z, p.x);
-      vec2 q = vec2(length(p.xz) - R, p.y);
-      q = rot(a*tw + ph) * q;
-      vec2 d = abs(q) - wh;
-      return length(max(d, 0.)) + min(max(d.x, d.y), 0.) - .035;
-    }
-    float map(vec3 p){
-      float t = uTime*.45;
-      vec3 q = p;
-      /* the whole gyro leans with the pointer */
-      q.xy = rot(.35 + uMouse.y*.25) * q.xy;
-      q.xz = rot(t*.4 + uMouse.x*.6) * q.xz;
-
-      /* outer möbius band */
-      float d = band(q, 1.32, vec2(.30, .045), 1.5, t*1.3);
-
-      /* inner band, counter-rotating on a tilted axis */
-      vec3 r = q;
-      r.yz = rot(t*.8) * r.yz;
-      r.xy = rot(1.05) * r.xy;
-      d = min(d, band(r, .88, vec2(.15, .035), 2.5, -t*1.7));
-
-      /* breathing core */
-      d = min(d, length(q) - .40 - .045*sin(t*2.6));
-      return d;
-    }
-    vec3 normal(vec3 p){
-      vec2 e = vec2(.0015, 0.);
-      return normalize(vec3(
-        map(p+e.xyy)-map(p-e.xyy),
-        map(p+e.yxy)-map(p-e.yxy),
-        map(p+e.yyx)-map(p-e.yyx)));
-    }
-    void main(){
-      vec2 uv = (gl_FragCoord.xy*2. - uRes) / min(uRes.x, uRes.y);
-      /* park the blob right of center on wide screens, centered on tall */
-      float wide = smoothstep(1., 1.6, uRes.x/uRes.y);
-      uv.x -= .70 * wide;
-      uv.y += .05 + uScroll*.9;      /* drift up & away as you scroll */
-      uv.y -= .85 * (1. - wide);     /* narrow screens: sit up behind the headline */
-
-      vec3 ro = vec3(0., 0., 4.35);
-      vec3 rd = normalize(vec3(uv, -2.));
-
-      float t = 0., d;
-      vec3 p;
-      bool hit = false;
-      for(int i=0;i<90;i++){
-        p = ro + rd*t;
-        d = map(p);
-        if(d < .002){ hit = true; break; }
-        t += d*.8;              /* twisted SDF is inexact — step cautiously */
-        if(t > 8.) break;
-      }
-      if(!hit){ gl_FragColor = vec4(0.); return; }
-
-      vec3 n = normal(p);
-      vec3 v = normalize(ro - p);
-
-      /* palette — ink chrome, signal-blue light */
-      vec3 ink    = vec3(.012, .022, .05);
-      vec3 signal = vec3(.30, .49, 1.);
-      vec3 deep   = vec3(.18, .36, 1.);
-      vec3 ice    = vec3(.66, .76, 1.);
-
-      vec3 kl = normalize(vec3(.7, .9, .55));   /* ice key */
-      vec3 fl = normalize(vec3(-.65, -.35, .45)); /* deep-blue fill */
-
-      float kd = max(dot(n, kl), 0.);
-      float fd = max(dot(n, fl), 0.);
-      float fres = pow(1. - max(dot(n, v), 0.), 2.2);
-      float spec = pow(max(dot(reflect(-kl, n), v), 0.), 60.);
-
-      vec3 col = ink;
-      col += ice  * kd * .35;
-      col += deep * fd * .45;
-      col += mix(signal, ice, .35) * fres * 1.25;
-      col += vec3(1.) * spec * .8;
-
-      float fade = 1. - smoothstep(.4, 1., uScroll);
-      fade *= mix(.5, 1., wide);     /* dim on narrow screens so copy stays readable */
-      gl_FragColor = vec4(col * fade, fade);
-    }`;
-
-  function shader(type, src){
-    const s = gl.createShader(type);
-    gl.shaderSource(s, src); gl.compileShader(s);
-    if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){
-      console.warn(gl.getShaderInfoLog(s)); return null;
-    }
-    return s;
+  function progress(){
+    const r = wrap.getBoundingClientRect();
+    const total = r.height - innerHeight;
+    return total > 0 ? Math.min(Math.max(-r.top / total, 0), 1) : 0;
   }
-  const vs = shader(gl.VERTEX_SHADER, VERT);
-  const fs = shader(gl.FRAGMENT_SHADER, FRAG);
-  if(!vs || !fs){ canvas.style.display = "none"; return; }
-  const prog = gl.createProgram();
-  gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
-  gl.useProgram(prog);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
-  const loc = gl.getAttribLocation(prog, "a");
-  gl.enableVertexAttribArray(loc);
-  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  let cur = 0, seeking = false;
+  vid.addEventListener("seeking",  ()=>{ seeking = true; });
+  vid.addEventListener("seeked",   ()=>{ seeking = false; });
 
-  const uRes    = gl.getUniformLocation(prog, "uRes");
-  const uTime   = gl.getUniformLocation(prog, "uTime");
-  const uMouse  = gl.getUniformLocation(prog, "uMouse");
-  const uScroll = gl.getUniformLocation(prog, "uScroll");
-
-  const DPR = Math.min(devicePixelRatio || 1, 1.5);
-  const SCALE = .8;   /* render at reduced res — raymarch is heavy */
-  function resize(){
-    canvas.width  = Math.floor(canvas.clientWidth  * DPR * SCALE);
-    canvas.height = Math.floor(canvas.clientHeight * DPR * SCALE);
-    gl.viewport(0, 0, canvas.width, canvas.height);
-  }
-  resize();
-  addEventListener("resize", resize, {passive:true});
-
-  let bmx = 0, bmy = 0, smx = 0, smy = 0;
-  addEventListener("pointermove", e=>{
-    bmx = (e.clientX/innerWidth)*2 - 1;
-    bmy = -((e.clientY/innerHeight)*2 - 1);
-  }, {passive:true});
-
-  let visible = true;
-  new IntersectionObserver(es=>{ visible = es[0].isIntersecting; })
-    .observe(canvas);
-
-  const start = performance.now();
-  function frame(now){
-    requestAnimationFrame(frame);
-    if(!visible || document.hidden) return;
-    smx += (bmx - smx)*.06; smy += (bmy - smy)*.06;
-    const sc = Math.min(Math.max(scrollY / innerHeight, 0), 1);
-    gl.uniform2f(uRes, canvas.width, canvas.height);
-    gl.uniform1f(uTime, reduceMotion ? 12 : (now - start)/1000);
-    gl.uniform2f(uMouse, smx, smy);
-    gl.uniform1f(uScroll, sc);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-  }
-  if(reduceMotion){
-    /* single static frame */
-    gl.uniform2f(uRes, canvas.width, canvas.height);
-    gl.uniform1f(uTime, 12);
-    gl.uniform2f(uMouse, 0, 0);
-    gl.uniform1f(uScroll, 0);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-  }else{
-    requestAnimationFrame(frame);
-  }
+  (function loop(){
+    requestAnimationFrame(loop);
+    if(document.hidden) return;
+    const p = progress();
+    if(bar) bar.style.setProperty("--fp", p);
+    if(!dur || vid.readyState < 2) return;
+    const target = p * Math.max(dur - .06, 0);
+    cur += (target - cur) * .16;               /* eased scrub */
+    if(!seeking && Math.abs(vid.currentTime - cur) > .02){
+      try{ vid.currentTime = cur; }catch(e){}
+    }
+  })();
 })();
 
 /* ============================================================
@@ -1290,7 +1185,7 @@ form.addEventListener("submit", async e=>{
     modal.classList.add("sent");
   }catch(err){
     errEl.className = "form-note error";
-    errEl.textContent = err.message + " — or email hello@kinetiq.studio";
+    errEl.textContent = err.message + " — or email hello@swipeandscale.studio";
   }finally{
     btn.disabled = false;
     btn.innerHTML = 'Send it <span aria-hidden="true">→</span>';
