@@ -11,24 +11,24 @@
 <style>
 /* ============================================================
    KINETIQ — design tokens
-   A warm dark world: plum-black ground, peach light.
+   A vault at midnight: ink ground, signal-blue light.
    ============================================================ */
 :root{
-  --ground:   #0C0710;   /* plum-black page ground */
-  --ground-2: #130B18;   /* raised ground */
-  --glass:    rgba(255,240,230,.045);
-  --glass-2:  rgba(255,240,230,.07);
-  --line:     rgba(255,205,180,.14);
-  --line-2:   rgba(255,205,180,.08);
+  --ground:   #04070E;   /* ink — near-black, blue bias */
+  --ground-2: #081226;   /* deep navy panel */
+  --glass:    rgba(239,243,250,.04);
+  --glass-2:  rgba(239,243,250,.07);
+  --line:     rgba(148,175,230,.16);
+  --line-2:   rgba(148,175,230,.09);
 
-  --peach:    #FF9E6E;   /* the accent */
-  --peach-2:  #FF6D3B;   /* accent deep */
-  --coral:    #FF5D6C;   /* gradient tail */
-  --blush:    #FFC9A8;   /* highlight */
-  --cream:    #FBF4ED;   /* type */
-  --muted:    #B0A09B;   /* secondary type */
+  --signal:   #4D7CFF;   /* the one accent */
+  --signal-2: #2E5BFF;   /* accent deep */
+  --pulse:    #FF6B7A;   /* errors only */
+  --ice:      #A9C2FF;   /* highlight */
+  --arctic:   #EFF3FA;   /* type white, blue bias */
+  --muted:    #8B96AB;   /* secondary type, blue-grey */
 
-  --grad: linear-gradient(120deg,#FFC9A8 0%,#FF9E6E 35%,#FF6D3B 70%,#FF5D6C 100%);
+  --grad: linear-gradient(120deg,#A9C2FF 0%,#4D7CFF 45%,#2E5BFF 100%);
 
   --font-display:"Space Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
   --font-body:"Inter","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -44,7 +44,7 @@
 html{scroll-behavior:smooth}
 body{
   background:var(--ground);
-  color:var(--cream);
+  color:var(--arctic);
   font-family:var(--font-body);
   font-size:1rem;
   line-height:1.65;
@@ -55,15 +55,15 @@ body{
 body::before{
   content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:
-    radial-gradient(60rem 40rem at 85% -10%,rgba(255,109,59,.10),transparent 60%),
-    radial-gradient(50rem 36rem at -10% 40%,rgba(255,93,108,.06),transparent 60%),
+    radial-gradient(60rem 40rem at 85% -10%,rgba(46,91,255,.10),transparent 60%),
+    radial-gradient(50rem 36rem at -10% 40%,rgba(77,124,255,.05),transparent 60%),
     var(--ground);
 }
-::selection{background:var(--peach-2);color:var(--ground)}
+::selection{background:var(--signal-2);color:var(--ground)}
 img,canvas,svg{display:block;max-width:100%}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-:focus-visible{outline:2px solid var(--peach);outline-offset:3px}
+:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
 h1,h2,h3{font-family:var(--font-display);font-weight:600;line-height:1.04;letter-spacing:-.02em}
 
 /* ---------- utility type ---------- */
@@ -84,9 +84,9 @@ h1,h2,h3{font-family:var(--font-display);font-weight:600;line-height:1.04;letter
   background:var(--glass);border:1px solid var(--line);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
-.chip .dot{width:.4rem;height:.4rem;border-radius:50%;background:var(--peach);box-shadow:0 0 10px var(--peach)}
+.chip .dot{width:.4rem;height:.4rem;border-radius:50%;background:var(--signal);box-shadow:0 0 10px var(--signal)}
 .eyebrow{display:flex;align-items:center;gap:.75rem;margin-bottom:2.25rem}
-.eyebrow .mono{color:var(--peach)}
+.eyebrow .mono{color:var(--signal)}
 .eyebrow::before{content:"";width:2.25rem;height:1px;background:var(--grad);flex:none}
 
 /* ---------- pill buttons ---------- */
@@ -98,12 +98,12 @@ h1,h2,h3{font-family:var(--font-display);font-weight:600;line-height:1.04;letter
   will-change:transform;
 }
 .btn-primary{
-  color:#1C0E06;background:var(--grad);
-  box-shadow:0 8px 30px -8px rgba(255,109,59,.55);
+  color:#04070E;background:var(--grad);
+  box-shadow:0 8px 30px -8px rgba(46,91,255,.55);
 }
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 40px -8px rgba(255,109,59,.7)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 40px -8px rgba(46,91,255,.7)}
 .btn-ghost{
-  color:var(--cream);background:var(--glass);border:1px solid var(--line);
+  color:var(--arctic);background:var(--glass);border:1px solid var(--line);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
 .btn-ghost:hover{background:var(--glass-2);transform:translateY(-2px)}
@@ -141,14 +141,14 @@ h1,h2,h3{font-family:var(--font-display);font-weight:600;line-height:1.04;letter
 #cursor,#cursor-ring{position:fixed;top:0;left:0;pointer-events:none;z-index:99;display:none}
 @media (hover:hover) and (pointer:fine){
   #cursor,#cursor-ring{display:block}
-  #cursor{width:6px;height:6px;border-radius:50%;background:var(--peach);transform:translate(-50%,-50%)}
+  #cursor{width:6px;height:6px;border-radius:50%;background:var(--signal);transform:translate(-50%,-50%)}
   #cursor-ring{
     width:34px;height:34px;border-radius:50%;
-    border:1px solid rgba(255,158,110,.5);
+    border:1px solid rgba(77,124,255,.5);
     transform:translate(-50%,-50%);
     transition:width .3s var(--ease-out),height .3s var(--ease-out),border-color .3s;
   }
-  body.cursor-hover #cursor-ring{width:64px;height:64px;border-color:rgba(255,158,110,.95)}
+  body.cursor-hover #cursor-ring{width:64px;height:64px;border-color:rgba(77,124,255,.95)}
 }
 
 /* ---------- scroll progress ---------- */
@@ -166,7 +166,7 @@ header#top{
   width:min(60rem,calc(100% - 2rem));
   display:flex;align-items:center;justify-content:space-between;
   padding:.6rem .75rem .6rem 1.4rem;border-radius:999px;
-  background:rgba(19,11,24,.55);
+  background:rgba(6,11,24,.55);
   border:1px solid var(--line-2);
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   transition:transform .5s var(--ease-out),box-shadow .5s;
@@ -184,15 +184,15 @@ header#top nav{display:flex;align-items:center;gap:.25rem}
   padding:.5rem .9rem;border-radius:999px;
   transition:color .3s,background .3s;
 }
-.navlink:hover{color:var(--cream);background:var(--glass)}
+.navlink:hover{color:var(--arctic);background:var(--glass)}
 .nav-cta{
   font-family:var(--font-display);font-weight:600;font-size:.85rem;
-  color:#1C0E06;background:var(--grad);
+  color:#04070E;background:var(--grad);
   padding:.55rem 1.2rem;border-radius:999px;margin-left:.5rem;
-  box-shadow:0 6px 20px -6px rgba(255,109,59,.55);
+  box-shadow:0 6px 20px -6px rgba(46,91,255,.55);
   transition:transform .3s var(--ease-out),box-shadow .3s;
 }
-.nav-cta:hover{transform:translateY(-1px);box-shadow:0 10px 28px -6px rgba(255,109,59,.7)}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 10px 28px -6px rgba(46,91,255,.7)}
 @media (max-width:640px){ .navlink{display:none} }
 
 /* ============================================================
@@ -275,7 +275,7 @@ body.loaded .scroll-hint{opacity:1}
   overflow:hidden;white-space:nowrap;
   border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);
   padding:1.4rem 0;
-  background:rgba(255,240,230,.015);
+  background:rgba(239,243,250,.015);
 }
 .marquee-track{display:inline-block;animation:marq 26s linear infinite}
 .marquee-track span{
@@ -283,7 +283,7 @@ body.loaded .scroll-hint{opacity:1}
   font-size:1.05rem;letter-spacing:.06em;text-transform:uppercase;
   color:var(--muted);margin:0 2.4rem;
 }
-.marquee-track span::after{content:"✦";margin-left:4.8rem;color:var(--peach);opacity:.7}
+.marquee-track span::after{content:"✦";margin-left:4.8rem;color:var(--signal);opacity:.7}
 @keyframes marq{to{transform:translateX(-50%)}}
 
 /* ============================================================
@@ -300,25 +300,25 @@ body.loaded .scroll-hint{opacity:1}
   transition:transform .5s var(--ease-out),border-color .5s,box-shadow .5s;
   will-change:transform;
 }
-.case:hover{border-color:var(--line);box-shadow:0 24px 60px -24px rgba(255,109,59,.25)}
+.case:hover{border-color:var(--line);box-shadow:0 24px 60px -24px rgba(46,91,255,.25)}
 .case-stage{
   position:relative;aspect-ratio:16/10;overflow:hidden;
   border-radius:calc(var(--radius) - .5rem);
-  background:linear-gradient(160deg,#170D1D,#0E0812);
+  background:linear-gradient(160deg,#0B1730,#060C1A);
 }
 .case-stage canvas{width:100%;height:100%}
 .live{
   position:absolute;top:2rem;right:2rem;
   font-family:var(--font-mono);font-size:.625rem;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--peach);background:rgba(12,7,16,.6);border:1px solid var(--line);
+  color:var(--signal);background:rgba(4,7,14,.6);border:1px solid var(--line);
   padding:.3rem .7rem;border-radius:999px;backdrop-filter:blur(6px);
   display:flex;align-items:center;gap:.45rem;
 }
-.live::before{content:"";width:.4rem;height:.4rem;border-radius:50%;background:var(--peach);box-shadow:0 0 8px var(--peach);animation:pulse 1.6s ease infinite}
+.live::before{content:"";width:.4rem;height:.4rem;border-radius:50%;background:var(--signal);box-shadow:0 0 8px var(--signal);animation:pulse 1.6s ease infinite}
 @keyframes pulse{50%{opacity:.35}}
 .case-info{display:flex;align-items:center;justify-content:space-between;padding:1.25rem .5rem .25rem}
 .case-info h3{font-size:1.2rem}
-.case-tag{font-family:var(--font-mono);font-size:.6875rem;letter-spacing:.12em;text-transform:uppercase;color:var(--peach)}
+.case-tag{font-family:var(--font-mono);font-size:.6875rem;letter-spacing:.12em;text-transform:uppercase;color:var(--signal)}
 .case-desc{padding:0 .5rem .5rem;color:var(--muted);font-size:.9375rem;max-width:34rem}
 
 /* ============================================================
@@ -337,7 +337,7 @@ body.loaded .scroll-hint{opacity:1}
 }
 .cap::before{
   content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
-  background:radial-gradient(24rem 16rem at 20% 0%,rgba(255,158,110,.12),transparent 65%);
+  background:radial-gradient(24rem 16rem at 20% 0%,rgba(77,124,255,.12),transparent 65%);
   transition:opacity .5s;
 }
 .cap:hover{border-color:var(--line);transform:translateY(-4px)}
@@ -349,7 +349,7 @@ body.loaded .scroll-hint{opacity:1}
 .cap h3{font-size:1.35rem;margin:1rem 0 .75rem}
 .cap p{color:var(--muted);font-size:.9375rem}
 .cap .arrow{
-  position:absolute;top:1.6rem;right:1.8rem;color:var(--peach);
+  position:absolute;top:1.6rem;right:1.8rem;color:var(--signal);
   transition:transform .4s var(--ease-out);
 }
 .cap:hover .arrow{transform:translate(4px,-4px)}
@@ -370,7 +370,7 @@ body.loaded .scroll-hint{opacity:1}
 }
 .step .idx{
   font-family:var(--font-mono);font-size:.6875rem;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--peach);
+  color:var(--signal);
 }
 .step h3{font-size:1.3rem;margin:2.5rem 0 .75rem}
 .step p{color:var(--muted);font-size:.9375rem}
@@ -401,8 +401,8 @@ body.loaded .scroll-hint{opacity:1}
   font-family:var(--font-display);font-weight:600;
   font-size:clamp(1.75rem,4.4vw,3.25rem);line-height:1.25;letter-spacing:-.015em;
 }
-#manifesto-text .w{color:rgba(251,244,237,.16);transition:color .35s}
-#manifesto-text .w.lit{color:var(--cream)}
+#manifesto-text .w{color:rgba(239,243,250,.16);transition:color .35s}
+#manifesto-text .w.lit{color:var(--arctic)}
 #manifesto-text .w.accent.lit{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* ============================================================
@@ -414,15 +414,15 @@ body.loaded .scroll-hint{opacity:1}
   border-radius:calc(var(--radius) + .75rem);
   border:1px solid var(--line);
   background:
-    radial-gradient(50rem 26rem at 50% 120%,rgba(255,109,59,.28),transparent 65%),
-    radial-gradient(30rem 18rem at 80% -20%,rgba(255,93,108,.14),transparent 60%),
+    radial-gradient(50rem 26rem at 50% 120%,rgba(46,91,255,.28),transparent 65%),
+    radial-gradient(30rem 18rem at 80% -20%,rgba(77,124,255,.12),transparent 60%),
     var(--ground-2);
   padding:clamp(4rem,10vh,7rem) var(--gutter);
 }
 .cta-panel h2{font-size:clamp(2.5rem,7vw,5.5rem);font-weight:700;letter-spacing:-.03em}
 .cta-panel .sub{max-width:36rem;margin:1.5rem auto 2.5rem;color:var(--muted)}
 .cta-panel .mail{display:block;margin-top:1.75rem}
-.cta-panel .mail a{color:var(--peach);border-bottom:1px solid rgba(255,158,110,.4)}
+.cta-panel .mail a{color:var(--signal);border-bottom:1px solid rgba(77,124,255,.4)}
 
 /* ============================================================
    Footer
@@ -434,7 +434,7 @@ footer{
 }
 .socials{display:flex;gap:1.75rem}
 .socials a{transition:color .3s}
-.socials a:hover{color:var(--peach)}
+.socials a:hover{color:var(--signal)}
 
 /* ============================================================
    Lead modal
@@ -442,7 +442,7 @@ footer{
 #lead-modal{position:fixed;inset:0;z-index:95;display:none}
 #lead-modal.open{display:block}
 #lead-modal .veil{
-  position:absolute;inset:0;background:rgba(6,3,9,.7);
+  position:absolute;inset:0;background:rgba(2,4,10,.72);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   opacity:0;transition:opacity .4s;
 }
@@ -465,33 +465,33 @@ footer{
   color:var(--muted);padding:.5rem .9rem;border-radius:999px;border:1px solid var(--line-2);
   transition:color .3s,border-color .3s;
 }
-.modal-close:hover{color:var(--cream);border-color:var(--line)}
+.modal-close:hover{color:var(--arctic);border-color:var(--line)}
 #lead-form .field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 @media (max-width:540px){#lead-form .field-row{grid-template-columns:1fr}}
 .field{margin-bottom:1.1rem;display:flex;flex-direction:column;gap:.45rem}
 .field label{font-family:var(--font-mono);font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.field .req{color:var(--peach)}
+.field .req{color:var(--signal)}
 .field input,.field select,.field textarea{
-  font:inherit;color:var(--cream);
+  font:inherit;color:var(--arctic);
   background:var(--glass);border:1px solid var(--line-2);border-radius:1rem;
   padding:.85rem 1.1rem;width:100%;
   transition:border-color .3s,background .3s;
 }
 .field textarea{min-height:7rem;resize:vertical}
-.field select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--peach) 50%),linear-gradient(135deg,var(--peach) 50%,transparent 50%);background-position:calc(100% - 1.3rem) 55%,calc(100% - 1rem) 55%;background-size:.3rem .3rem;background-repeat:no-repeat}
-.field select option{background:var(--ground-2);color:var(--cream)}
-.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--peach);background:var(--glass-2)}
+.field select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--signal) 50%),linear-gradient(135deg,var(--signal) 50%,transparent 50%);background-position:calc(100% - 1.3rem) 55%,calc(100% - 1rem) 55%;background-size:.3rem .3rem;background-repeat:no-repeat}
+.field select option{background:var(--ground-2);color:var(--arctic)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--signal);background:var(--glass-2)}
 .form-submit{margin-top:.5rem}
 .form-note{margin-top:1rem;font-size:.875rem;color:var(--muted)}
-.form-note.error{color:var(--coral)}
+.form-note.error{color:var(--pulse)}
 #lead-modal .modal-success{display:none;text-align:center;padding:2rem 0}
 #lead-modal.sent form,#lead-modal.sent .modal-head p{display:none}
 #lead-modal.sent .modal-success{display:block}
 .modal-success .mark{
   width:4rem;height:4rem;margin:0 auto 1.5rem;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-size:1.5rem;color:#1C0E06;background:var(--grad);
-  box-shadow:0 10px 34px -8px rgba(255,109,59,.6);
+  font-size:1.5rem;color:#04070E;background:var(--grad);
+  box-shadow:0 10px 34px -8px rgba(46,91,255,.6);
 }
 .modal-success h3{font-size:1.6rem;margin-bottom:.75rem}
 .modal-success p{color:var(--muted)}
@@ -506,7 +506,7 @@ body.modal-open{overflow:hidden}
   .hero h1 .line > span{transform:none}
   .hero-sub p,.hero-actions,.scroll-hint{opacity:1;transform:none}
   .reveal{opacity:1;transform:none}
-  #manifesto-text .w{color:var(--cream)}
+  #manifesto-text .w{color:var(--arctic)}
   #cursor,#cursor-ring{display:none!important}
 }
 </style>
@@ -542,7 +542,7 @@ body.modal-open{overflow:hidden}
   <canvas id="blob" aria-hidden="true"></canvas>
 
   <div class="hero-meta">
-    <span class="chip"><span class="dot"></span><span class="mono" style="color:var(--cream)">Interactive 3D studio</span></span>
+    <span class="chip"><span class="dot"></span><span class="mono" style="color:var(--arctic)">Interactive 3D studio</span></span>
     <span class="chip"><span class="mono">Est. 2021 — 60fps or nothing</span></span>
   </div>
 
@@ -721,7 +721,7 @@ body.modal-open{overflow:hidden}
 <!-- ================= CTA ================= -->
 <section id="contact" class="cta" aria-label="Contact">
   <div class="cta-panel">
-    <span class="mono" style="display:block;margin-bottom:1.5rem;color:var(--peach)">Next opening — September 2026</span>
+    <span class="mono" style="display:block;margin-bottom:1.5rem;color:var(--signal)">Next opening — September 2026</span>
     <h2>Let's build something<br>worth scrolling through.</h2>
     <p class="sub">One project at a time, taken seriously. Tell us what you're building and we'll show you what it looks like in motion.</p>
     <button class="btn btn-primary" type="button" data-hover data-magnetic data-open-lead>Start a project <span aria-hidden="true">→</span></button>
@@ -856,8 +856,10 @@ addEventListener("scroll", ()=>{
 }, {passive:true});
 
 /* ============================================================
-   Hero blob — raymarched glossy 3D metaballs (raw WebGL)
-   Peach-lit chrome, reacts to pointer and scroll.
+   Hero — the KINETIQ gyro (raw WebGL raymarch)
+   Two counter-rotating twisted rings around a breathing core.
+   Ink chrome lit by signal blue; leans with the pointer,
+   drifts away on scroll. Original to this studio.
    ============================================================ */
 (function(){
   const canvas = document.getElementById("blob");
@@ -875,25 +877,34 @@ addEventListener("scroll", ()=>{
     uniform vec2  uMouse;   /* -1..1 */
     uniform float uScroll;  /* 0..1 over hero */
 
-    float smin(float a, float b, float k){
-      float h = clamp(.5 + .5*(b-a)/k, 0., 1.);
-      return mix(b, a, h) - k*h*(1.-h);
+    mat2 rot(float a){ float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
+
+    /* ring with a twisting rectangular cross-section */
+    float band(vec3 p, float R, vec2 wh, float tw, float ph){
+      float a = atan(p.z, p.x);
+      vec2 q = vec2(length(p.xz) - R, p.y);
+      q = rot(a*tw + ph) * q;
+      vec2 d = abs(q) - wh;
+      return length(max(d, 0.)) + min(max(d.x, d.y), 0.) - .035;
     }
     float map(vec3 p){
-      float t = uTime*.5;
+      float t = uTime*.45;
       vec3 q = p;
-      /* core */
-      float d = length(q) - 1.05;
-      /* satellites */
-      vec3 s1 = vec3(sin(t*1.1), cos(t*.9), sin(t*.7)) * .9;
-      vec3 s2 = vec3(cos(t*.8), sin(t*1.3)*.7, cos(t*1.1)) * 1.0;
-      vec3 s3 = vec3(sin(t*.6+2.), cos(t*.5+1.), sin(t*1.2)) * .8;
-      d = smin(d, length(q-s1) - .48, .55);
-      d = smin(d, length(q-s2) - .38, .55);
-      d = smin(d, length(q-s3) - .30, .55);
-      /* pointer-attracted bead */
-      vec3 m = vec3(uMouse*1.4, .4);
-      d = smin(d, length(q-m) - .32, .5);
+      /* the whole gyro leans with the pointer */
+      q.xy = rot(.35 + uMouse.y*.25) * q.xy;
+      q.xz = rot(t*.4 + uMouse.x*.6) * q.xz;
+
+      /* outer möbius band */
+      float d = band(q, 1.32, vec2(.30, .045), 1.5, t*1.3);
+
+      /* inner band, counter-rotating on a tilted axis */
+      vec3 r = q;
+      r.yz = rot(t*.8) * r.yz;
+      r.xy = rot(1.05) * r.xy;
+      d = min(d, band(r, .88, vec2(.15, .035), 2.5, -t*1.7));
+
+      /* breathing core */
+      d = min(d, length(q) - .40 - .045*sin(t*2.6));
       return d;
     }
     vec3 normal(vec3 p){
@@ -907,21 +918,21 @@ addEventListener("scroll", ()=>{
       vec2 uv = (gl_FragCoord.xy*2. - uRes) / min(uRes.x, uRes.y);
       /* park the blob right of center on wide screens, centered on tall */
       float wide = smoothstep(1., 1.6, uRes.x/uRes.y);
-      uv.x -= .78 * wide;
+      uv.x -= .70 * wide;
       uv.y += .05 + uScroll*.9;      /* drift up & away as you scroll */
       uv.y -= .85 * (1. - wide);     /* narrow screens: sit up behind the headline */
 
-      vec3 ro = vec3(0., 0., 3.6);
+      vec3 ro = vec3(0., 0., 4.35);
       vec3 rd = normalize(vec3(uv, -2.));
 
       float t = 0., d;
       vec3 p;
       bool hit = false;
-      for(int i=0;i<70;i++){
+      for(int i=0;i<90;i++){
         p = ro + rd*t;
         d = map(p);
         if(d < .002){ hit = true; break; }
-        t += d;
+        t += d*.8;              /* twisted SDF is inexact — step cautiously */
         if(t > 8.) break;
       }
       if(!hit){ gl_FragColor = vec4(0.); return; }
@@ -929,25 +940,25 @@ addEventListener("scroll", ()=>{
       vec3 n = normal(p);
       vec3 v = normalize(ro - p);
 
-      /* palette */
-      vec3 peach = vec3(1., .62, .43);
-      vec3 coral = vec3(1., .36, .42);
-      vec3 plum  = vec3(.09, .05, .11);
-      vec3 creamC= vec3(.98, .96, .93);
+      /* palette — ink chrome, signal-blue light */
+      vec3 ink    = vec3(.012, .022, .05);
+      vec3 signal = vec3(.30, .49, 1.);
+      vec3 deep   = vec3(.18, .36, 1.);
+      vec3 ice    = vec3(.66, .76, 1.);
 
-      vec3 kl = normalize(vec3(.8, .9, .6));    /* warm key */
-      vec3 fl = normalize(vec3(-.7, -.3, .4));  /* coral fill */
+      vec3 kl = normalize(vec3(.7, .9, .55));   /* ice key */
+      vec3 fl = normalize(vec3(-.65, -.35, .45)); /* deep-blue fill */
 
       float kd = max(dot(n, kl), 0.);
       float fd = max(dot(n, fl), 0.);
-      float fres = pow(1. - max(dot(n, v), 0.), 2.6);
-      float spec = pow(max(dot(reflect(-kl, n), v), 0.), 42.);
+      float fres = pow(1. - max(dot(n, v), 0.), 2.2);
+      float spec = pow(max(dot(reflect(-kl, n), v), 0.), 60.);
 
-      vec3 col = plum;
-      col += peach * kd * .85;
-      col += coral * fd * .38;
-      col += mix(peach, coral, .5) * fres * .9;
-      col += creamC * spec * .9;
+      vec3 col = ink;
+      col += ice  * kd * .35;
+      col += deep * fd * .45;
+      col += mix(signal, ice, .35) * fres * 1.25;
+      col += vec3(1.) * spec * .8;
 
       float fade = 1. - smoothstep(.4, 1., uScroll);
       fade *= mix(.5, 1., wide);     /* dim on narrow screens so copy stays readable */
@@ -1111,9 +1122,9 @@ if(!reduceMotion && matchMedia("(hover:hover)").matches){
 }
 
 /* ============================================================
-   Live case scenes (2D canvas, peach palette)
+   Live case scenes (2D canvas, signal palette)
    ============================================================ */
-const PEACH = "#FF9E6E", CORAL = "#FF5D6C", BLUSH = "#FFC9A8", DIM = "rgba(255,158,110,.28)";
+const SIGNAL = "#4D7CFF", DEEP = "#2E5BFF", ICE = "#A9C2FF", DIM = "rgba(77,124,255,.28)";
 
 function sceneLoop(canvas, draw){
   const ctx = canvas.getContext("2d");
@@ -1158,12 +1169,12 @@ const SCENES = {
       const ex = cx + (px-cx)*Math.cos(-.5) - (py-cy)*Math.sin(-.5);
       const ey = cy + (px-cx)*Math.sin(-.5) + (py-cy)*Math.cos(-.5);
       ctx.arc(ex, ey, 3.2, 0, Math.PI*2);
-      ctx.fillStyle = r === 1 ? CORAL : PEACH;
-      ctx.shadowColor = PEACH; ctx.shadowBlur = 12;
+      ctx.fillStyle = r === 1 ? DEEP : SIGNAL;
+      ctx.shadowColor = SIGNAL; ctx.shadowBlur = 12;
       ctx.fill(); ctx.shadowBlur = 0;
     }
     ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI*2);
-    ctx.fillStyle = BLUSH; ctx.fill();
+    ctx.fillStyle = ICE; ctx.fill();
   },
   wave(ctx, w, h, t){
     ctx.clearRect(0, 0, w, h);
@@ -1176,7 +1187,7 @@ const SCENES = {
         const y = mid + Math.sin(k*10 + t*(1.4 + l*.4) + l*1.7) * env * h*.18 * (1 - l*.22);
         x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       }
-      ctx.strokeStyle = l === 0 ? PEACH : l === 1 ? CORAL : DIM;
+      ctx.strokeStyle = l === 0 ? SIGNAL : l === 1 ? ICE : DIM;
       ctx.lineWidth = l === 0 ? 1.8 : 1.1;
       ctx.globalAlpha = 1 - l*.28;
       ctx.stroke();
@@ -1192,7 +1203,7 @@ const SCENES = {
         const s = Math.sin(t*2.2 - d*.7)*.5 + .5;
         ctx.beginPath();
         ctx.arc(gx*i, gy*j, .8 + s*2.4, 0, Math.PI*2);
-        ctx.fillStyle = s > .78 ? PEACH : DIM;
+        ctx.fillStyle = s > .78 ? SIGNAL : DIM;
         ctx.fill();
       }
     }
@@ -1207,7 +1218,7 @@ const SCENES = {
     const wob = Math.sin(t*3)*4;
     ctx.strokeStyle = DIM; ctx.lineWidth = 1;
     ctx.strokeText(word, w/2 + wob, h/2 - wob*.4);
-    ctx.fillStyle = PEACH;
+    ctx.fillStyle = SIGNAL;
     ctx.globalAlpha = .9;
     ctx.fillText(word, w/2 - wob, h/2 + wob*.4);
     ctx.globalAlpha = 1;
